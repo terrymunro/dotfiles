@@ -1,0 +1,7 @@
+[user]
+	email = terry.munro@literacyplanet.com
+	name = Terence Munro
+[push]
+	default = simple
+[core]
+	editor = nvim

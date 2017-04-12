@@ -1,0 +1,15 @@
+if [ -n "$ZSH_VERSION" ]; then
+	# include .zshrc if it exists
+	if [ -f "$HOME/.zshrc" ]; then
+	source "$HOME/.zshrc"
+	fi
+fi
+
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/sbin:/usr/sbin:$HOME/.local/bin:$HOME/dotfiles/scripts:$PATH"
+export MANPATH="/usr/local/man:$MANPATH"
+
+# Change Capslock to Escape
+xmodmap ~/.xmodmap-esc
+
+# Disable touchpad
+~/dotfiles/disable_touchpad.sh

@@ -1,0 +1,11 @@
+# "Submodules"
+.vim/bundle/*
+.vim/undo/*
+.vim/plugged/*
+
+.xmonad/xmonad.errors
+.xmonad/xmonad.hi
+.xmonad/xmonad.o
+.xmonad/playerstatus
+.xmonad/xmonad-x86_64-linux
+.xmonad/xmonad.state
