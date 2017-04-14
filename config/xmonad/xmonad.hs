@@ -1,66 +1,37 @@
-import XMonad
-import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks
-import XMonad.Hooks.SetWMName
-import XMonad.Util.Run(spawnPipe)
-import XMonad.Util.EZConfig(additionalKeys)
-import Graphics.X11.ExtraTypes.XF86
 import System.IO
-import XMonad.Config.Desktop
-import qualified Data.Map as M
-import XMonad.Core as XMonad hiding
-    (workspaces,manageHook,keys,logHook,startupHook,borderWidth,mouseBindings
-    ,layoutHook,modMask,terminal,normalBorderColor,focusedBorderColor,focusFollowsMouse
-    ,handleEventHook,clickJustFocuses)
-import qualified XMonad.Core as XMonad
-    (workspaces,manageHook,keys,logHook,startupHook,borderWidth,mouseBindings
-    ,layoutHook,modMask,terminal,normalBorderColor,focusedBorderColor,focusFollowsMouse
-    ,handleEventHook,clickJustFocuses)
-import XMonad.Layout
-import XMonad.Layout.Grid
-import XMonad.Layout.ShowWName
-import XMonad.Layout.Spacing
-import XMonad.Layout.Spiral
-import XMonad.Layout.Tabbed
-import XMonad.Operations
-import XMonad.ManageHook
-import qualified XMonad.StackSet as W
 import Data.Bits ((.|.))
 import Data.Monoid
 import Data.Ratio
 import qualified Data.Map as M
 import System.Exit
-import Graphics.X11.Xlib
-import Graphics.X11.Xlib.Extras
-import XMonad.Hooks.EwmhDesktops
 
 myWorkspaces = [
-  "1:dev",
-  "2:dev-extra",
-  "3:comms",
-  "4:email",
-  "5:other",
+  "1:λ",
+  "2:∞",
+  "3:☎",
+  "4:¬",
+  "5",
   "6",
   "7",
   "8",
-  "9:music"]
+  "9:♫"]
 
 ratio :: Rational
-ratio = 3840 % 2160 -- (toRational ((1.0 + sqrt(5.0)) / 2.0))
+ratio = toRational ((1.0 + sqrt 5.0) / 2.0)
 
 myLayouts = avoidStruts (
-    tall                      |||
-    spiral ratio              |||
-    Full                      |||
-    Grid                      |||
-    layoutHook defaultConfig)
+    tall          |||
+    spiral ratio  |||
+    Full          |||
+    Grid          |||
+    layoutHook def)
   where tall = Tall 1 (3/100) (1/2)
 
 main = do
     xmproc <- spawnPipe "/usr/bin/xmobar /home/terry/.xmonad/xmobarrc"
-    xmonad $ ewmh desktopConfig
+    xmonad $ ewmh $ pagerHints $ def
         { modMask = mod4Mask,
-          terminal = "qterminal",
+          terminal = "gnome-terminal",
           startupHook = setWMName "LG3D",
           keys = myKeys,
           logHook = dynamicLogWithPP xmobarPP
@@ -69,7 +40,7 @@ main = do
           workspaces = myWorkspaces,
           focusFollowsMouse = True,
           focusedBorderColor = "#f92672",
-          manageHook = manageDocks <+> manageHook defaultConfig,
+          manageHook = manageDocks <+> manageHook def,
           layoutHook = myLayouts
           } `additionalKeys`
           [ ((0, xK_Scroll_Lock), spawn "dm-tool lock")

@@ -48,8 +48,8 @@ HIST_STAMPS="yyyy-mm-dd"
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(tmux git)
+# Example format: plugins=(rails git textmate ruby lighthouse tmux)
+plugins=(git)
 
 # User configuration
 if [ -f "$HOME/.local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh" ]; then
@@ -73,12 +73,17 @@ fi
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# ssh
-export SSH_KEY_PATH="~/.ssh/rsa_id"
-
 # VirtualEnv
 #export WORKON_HOME=$HOME/.virtualenvs
 #export PROJECT_HOME=/vagrant
 #source /usr/local/bin/virtualenvwrapper.sh
+
+# TODO: fix this
+#eval "$(stack --bash-completion-script stack)"
+
+# ssh
+export SSH_KEY_PATH="~/.ssh/rsa_id"
+
+source ~/dotfiles/scripts/z.sh
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

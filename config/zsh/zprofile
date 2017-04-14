@@ -9,7 +9,7 @@ export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/sbin:/usr
 export MANPATH="/usr/local/man:$MANPATH"
 
 # Change Capslock to Escape
-xmodmap ~/.xmodmap-esc
+xmodmap $HOME/dotfiles/config/xmodmap-esc
 
 # Disable touchpad
-~/dotfiles/disable_touchpad.sh
+$HOME/dotfiles/scripts/disable_touchpad.sh

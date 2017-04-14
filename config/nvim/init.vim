@@ -1,9 +1,8 @@
 " vim: set foldmethod=marker foldlevel=0:
 " =============================================================================
-" Terry's Neovim Configuration {{{
+" Terry's Neovim Configuration
 " =============================================================================
-
-" TODO: replace tabs in this file with spaces
+" {{{
 
 " }}}
 " =============================================================================
@@ -16,14 +15,14 @@ call plug#begin('~/.vim/plugged')
 Plug 'junegunn/vim-github-dashboard', { 'on': ['GHDashboard', 'GHActivity'] }
 " A git commit browser
 Plug 'junegunn/gv.vim'
-Plug 'junegunn/vim-easy-align',   { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
+Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
 Plug 'junegunn/vim-emoji'
 " Improvements to searching
 Plug 'junegunn/vim-slash'
 Plug 'junegunn/vim-journal'
 Plug 'junegunn/rainbow_parentheses.vim'
 " Defines text objects to target text after the designated characters
-"Plug 'junegunn/vim-after-object'
+Plug 'junegunn/vim-after-object'
 " Extends \" and @ in normal mode and <CTRL-R> in insert mode so you can see
 " the contents of the registers.
 Plug 'junegunn/vim-peekaboo'
@@ -31,52 +30,53 @@ Plug 'junegunn/vim-peekaboo'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-endwise'
-Plug 'tpope/vim-commentary',    { 'on': '<Plug>Commentary' }
 Plug 'tpope/vim-fugitive'
-" Tmux
-Plug 'tpope/vim-tbone'
+Plug 'tpope/vim-tbone'    " Tmux
+"Plug 'tpope/vim-commentary',     { 'on': '<Plug>Commentary' }
+Plug 'scrooloose/nerdcommenter'
+Plug 'scrooloose/nerdtree',       { 'on': 'NERDTreeToggle' }
+" trying w0rp/ale for now
+"Plug 'vim-syntastic/syntastic'
 Plug 'editorconfig/editorconfig-vim'
-Plug 'mbbill/undotree',     { 'on': 'UndotreeToggle' }
+Plug 'mbbill/undotree',           { 'on': 'UndotreeToggle' }
 Plug 'vim-scripts/ReplaceWithRegister'
 Plug 'AndrewRadev/splitjoin.vim'
 Plug 'rhysd/vim-grammarous'
 Plug 'beloglazov/vim-online-thesaurus'
+Plug 'ryanoasis/vim-devicons'
+Plug 'Shougo/neocomplete.vim'
+Plug 'Shougo/vimproc.vim',        { 'do': 'make' }
+Plug 'tomtom/tlib_vim'
+Plug 'MarcWeber/vim-addon-mw-utils'
+Plug 'garbas/vim-snipmate'
+Plug 'ervandew/supertab'
+
 " Powerline
 Plug 'itchyny/lightline.vim'
-
-Plug 'scrooloose/nerdtree',     { 'on': 'NERDTreeToggle' }
-augroup nerd_loader
-  autocmd!
-  autocmd VimEnter * silent! autocmd! FileExplorer
-  autocmd BufEnter,BufNew *
-        \  if isdirectory(expand('<amatch>'))
-        \|   call plug#load('nerdtree')
-        \|   execute 'autocmd! nerd_loader'
-        \| endif
-augroup END
-
-Plug 'Yggdroot/indentLine',     { 'on': 'IndentLinesEnable' }
-autocmd! User indentLine doautocmd indentLine Syntax
 
 " EXPERIMENTAL
 Plug 'junegunn/vim-pseudocl'
 Plug 'junegunn/vim-fnr'
 
 " Colour schemes
+Plug 'iCyMind/NeoSolarized'
 Plug 'MaxSt/FlatColor'
-"Plug 'junegunn/seoul256.vim'
-"Plug 'tomasr/molokai'
-"Plug 'chriskempson/vim-tomorrow-theme'
-"Plug 'AlessandroYorba/Monrovia'
+Plug 'mhartington/oceanic-next'
+Plug 'junegunn/seoul256.vim'
+Plug 'tomasr/molokai'
+Plug 'AlessandroYorba/Monrovia'
 
 " Languages
-Plug 'groenewege/vim-less'
+Plug 'w0rp/ale',              { 'on': 'ALEEnable' }
+Plug 'derekwyatt/vim-scala'
+Plug 'ensime/ensime-vim'
+Plug 'eagletmt/ghcmod-vim'
+Plug 'eagletmt/neco-ghc'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
-Plug 'derekwyatt/vim-scala'
+Plug 'groenewege/vim-less'
 Plug 'honza/dockerfile.vim'
-Plug 'chrisbra/unicode.vim', { 'for': 'journal' }
-Plug 'w0rp/ale', { 'on': 'ALEEnable' }
+Plug 'chrisbra/unicode.vim',  { 'for': 'journal' }
 
 " Externals
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
@@ -89,9 +89,8 @@ call plug#end()
 " Settings {{{
 " =============================================================================
 
-let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-let g:lightline = { 'colorscheme': 'flatcolor' }
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
+let NERDTreeShowHidden=1
 
 set nu
 set autoindent
@@ -133,8 +132,24 @@ set pastetoggle=<F9>
 set modelines=2
 set synmaxcol=1000
 
+" Keep the cursor on the same column
+set nostartofline
+
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+colorscheme OceanicNext
+let g:lightline = {
+      \ 'colorscheme': 'oceanicnext',
+      \ 'component': {
+      \   'readonly': '%{&readonly?"⭤":""}',
+      \ },
+      \ 'separator': { 'left': '⮀', 'right': '⮂' },
+      \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
+      \ }
+
 " ctags
 set tags=./tags;/
+
+let $FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*" --glob "!**target/*"'
 
 " Annoying temporary files
 set backupdir=/tmp//,.
@@ -151,9 +166,6 @@ set textwidth=0
 if exists('&colorcolumn')
   set colorcolumn=80
 endif
-
-" Keep the cursor on the same column
-set nostartofline
 
 set formatoptions+=1
 if has('patch-7.3.541')
@@ -293,8 +305,9 @@ nnoremap g[ :pop<cr>
 " Jump list (to newer position)
 nnoremap <C-p> <C-i>
 
-" <F10> | NERD Tree
+" <F10>, <C-n> | NERD Tree
 nnoremap <F10> :NERDTreeToggle<cr>
+nnoremap <C-n> :NERDTreeToggle<cr>
 
 " <F11> | Tagbar
 if v:version >= 703
@@ -313,13 +326,15 @@ inoremap <C-^> <C-o><C-^>
 " Make Y behave like other capitals
 nnoremap Y y$
 
+" Ensime
+nnoremap <localleader>t :EnTypeCheck<CR>
+
 " ----------------------------------------------------------------------------
 " nvim
 " ----------------------------------------------------------------------------
 if has('nvim')
   tnoremap <a-a> <esc>a
   tnoremap <a-b> <esc>b
-  tnoremap <a-d> <esc>d
   tnoremap <a-f> <esc>f
 endif
 
@@ -330,10 +345,12 @@ nnoremap ]b :bnext<cr>
 nnoremap [b :bprev<cr>
 
 " ----------------------------------------------------------------------------
-" vim-commentary
+" Haskell
 " ----------------------------------------------------------------------------
-map  gc  <Plug>Commentary
-nmap gcc <Plug>CommentaryLine
+map <silent> tw :GhcModTypeInsert<CR>
+map <silent> ts :GhcModSplitFunCase<CR>
+map <silent> tq :GhcModType<CR>
+map <silent> te :GhcModTypeClear<CR>
 
 " ----------------------------------------------------------------------------
 " vim-fugitive
@@ -649,6 +666,41 @@ onoremap <silent> a~ :<C-U>execute "normal va`"<cr>
 " =============================================================================
 " Plugin Stuff {{{
 " =============================================================================
+
+" ----------------------------------------------------------------------------
+" nerd loader
+" ----------------------------------------------------------------------------
+augroup nerd_loader
+  autocmd!
+  autocmd VimEnter * silent! autocmd! FileExplorer
+  autocmd BufEnter,BufNew *
+        \  if isdirectory(expand('<amatch>'))
+        \|   call plug#load('nerdtree')
+        \|   execute 'autocmd! nerd_loader'
+        \| endif
+augroup END
+
+Plug 'Yggdroot/indentLine',     { 'on': 'IndentLinesEnable' }
+autocmd! User indentLine doautocmd indentLine Syntax
+
+" ----------------------------------------------------------------------------
+" lightline
+" ----------------------------------------------------------------------------
+let g:lightline = {
+      \ 'component_function': {
+      \   'filetype': 'MyFiletype',
+      \   'fileformat': 'MyFileformat',
+      \ }
+      \ }
+
+function! MyFiletype()
+  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
+endfunction
+
+function! MyFileformat()
+  return winwidth(0) > 70 ? (&fileformat . ' ' . WebDevIconsGetFileFormatSymbol()) : ''
+endfunction
+
 " ----------------------------------------------------------------------------
 " vim-after-object
 " ----------------------------------------------------------------------------
@@ -694,15 +746,15 @@ xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
 nmap gaa ga_
 
-" xmap <Leader><Enter>   <Plug>(LiveEasyAlign)
-" nmap <Leader><Leader>a <Plug>(LiveEasyAlign)
+xmap <Leader><Enter>   <Plug>(LiveEasyAlign)
+nmap <Leader><Leader>a <Plug>(LiveEasyAlign)
 
-" inoremap <silent> => =><Esc>mzvip:EasyAlign/=>/<CR>`z$a<Space>
+inoremap <silent> => =><Esc>mzvip:EasyAlign/=>/<CR>`z$a<Space>
 
 " ----------------------------------------------------------------------------
 " vim-github-dashboard
 " ----------------------------------------------------------------------------
-let g:github_dashboard = { 'username': 'junegunn' }
+let g:github_dashboard = { 'username': 'terrymunro' }
 
 " ----------------------------------------------------------------------------
 " <leader>t | vim-tbone
@@ -799,6 +851,54 @@ endfunction
 command! PlugHelp call fzf#run(fzf#wrap({
   \ 'source':  sort(keys(g:plugs)),
   \ 'sink':    function('s:plugs_sink')}))
+
+" }}}
+" ============================================================================
+" AUTOCMD {{{
+" ============================================================================
+
+" Ensime stuff
+autocmd BufWritePost *.scala silent :EnTypeCheck
+
+augroup vimrc
+  " File types
+  au BufNewFile,BufRead Dockerfile*         set filetype=dockerfile
+
+  " Fugitive
+  au FileType gitcommit setlocal completefunc=emoji#complete
+  au FileType gitcommit nnoremap <buffer> <silent> cd :<C-U>Gcommit --amend --date="$(date)"<CR>
+
+  " http://vim.wikia.com/wiki/Highlight_unwanted_spaces
+  au BufNewFile,BufRead,InsertLeave * silent! match ExtraWhitespace /\s\+$/
+  au InsertEnter * silent! match ExtraWhitespace /\s\+\%#\@<!$/
+
+  " Unset paste on InsertLeave
+  au InsertLeave * silent! set nopaste
+
+  " Close preview window
+  if exists('##CompleteDone')
+    au CompleteDone * pclose
+  else
+    au InsertLeave * if !pumvisible() && (!exists('*getcmdwintype') || empty(getcmdwintype())) | pclose | endif
+  endif
+
+  " Automatic rename of tmux window
+  if exists('$TMUX') && !exists('$NORENAME')
+    au BufEnter * if empty(&buftype) | call system('tmux rename-window '.expand('%:t:S')) | endif
+    au VimLeave * call system('tmux set-window automatic-rename on')
+  endif
+augroup END
+
+" ----------------------------------------------------------------------------
+" Help in new tabs
+" ----------------------------------------------------------------------------
+function! s:helptab()
+  if &buftype == 'help'
+    wincmd T
+    nnoremap <buffer> q :q<cr>
+  endif
+endfunction
+autocmd vimrc BufEnter *.txt call s:helptab()
 
 " }}}
 " ============================================================================
