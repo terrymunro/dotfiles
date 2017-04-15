@@ -1,8 +1,6 @@
---Config { font = "xft:Fira Code:size=8:bold:antialias=true"
 Config { font = "xft:Fira Code:size=12:bold:antialias=true"
        , bgColor = "black"
        , fgColor = "grey"
---       , position = Static { xpos = 0, ypos = 0, width = 1600, height = 15}
        , position = Static { xpos = 0, ypos = 0, width = 3840, height = 18}
        , commands = [ Run Weather "YBCG" ["-t"," <tempC>C","-L","15","-H","28","--normal","green","--high","red","--low","lightblue"] 36000
 --                    , Run MultiCpu ["-L","3","-H","50","--normal","green","--high","red", "-t", "CPU: <autototal>"] 10

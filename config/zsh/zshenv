@@ -1,0 +1,31 @@
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/sbin:/usr/sbin:$HOME/.local/bin:$HOME/dotfiles/scripts:$PATH"
+
+export MANPATH="/usr/local/man:$MANPATH"
+
+# Preferred editor for local and remote sessions
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='vim'
+else
+  export EDITOR='nvim'
+fi
+
+# Not sure if these are needed anymore...
+export TERM="xterm-256color"
+export ZSH_TMUX_FIXTERM=false
+export ZSH_TMUX_AUTOSTART=true
+
+# VirtualEnv
+#export WORKON_HOME=$HOME/.virtualenvs
+#export PROJECT_HOME=/vagrant
+
+# ssh
+export SSH_KEY_PATH="~/.ssh/rsa_id"
+
+# Compilation flags
+# export ARCHFLAGS="-arch x86_64"
+
+# Change Capslock to Escape
+xmodmap $HOME/dotfiles/config/xmodmap-esc
+
+# Disable touchpad
+/bin/bash $HOME/dotfiles/scripts/disable_touchpad.sh

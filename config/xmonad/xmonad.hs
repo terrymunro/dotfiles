@@ -1,9 +1,29 @@
-import System.IO
+import qualified Data.Map as M
+import qualified XMonad.StackSet as W
 import Data.Bits ((.|.))
 import Data.Monoid
 import Data.Ratio
-import qualified Data.Map as M
+import Graphics.X11.Xlib
+import Graphics.X11.Xlib.Extras
+import Graphics.X11.ExtraTypes.XF86
 import System.Exit
+import System.IO
+import XMonad
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.SetWMName
+import XMonad.Util.Run(spawnPipe)
+import XMonad.Util.EZConfig(additionalKeys)
+import XMonad.Config.Desktop
+import XMonad.Layout
+import XMonad.Layout.Grid
+import XMonad.Layout.ShowWName
+import XMonad.Layout.Spacing
+import XMonad.Layout.Spiral
+import XMonad.Layout.Tabbed
+import XMonad.Operations
+import XMonad.ManageHook
 
 myWorkspaces = [
   "1:λ",
@@ -29,13 +49,13 @@ myLayouts = avoidStruts (
 
 main = do
     xmproc <- spawnPipe "/usr/bin/xmobar /home/terry/.xmonad/xmobarrc"
-    xmonad $ ewmh $ pagerHints $ def
+    xmonad $ ewmh def
         { modMask = mod4Mask,
           terminal = "gnome-terminal",
           startupHook = setWMName "LG3D",
           keys = myKeys,
           logHook = dynamicLogWithPP xmobarPP
-                      { ppOutput = hPutStrLn xmproc, ppTitle = xmobarColor "green" "" . shorten 50 },
+          { ppOutput = hPutStrLn xmproc, ppTitle = xmobarColor "green" "" . shorten 50 },
           borderWidth = 2,
           workspaces = myWorkspaces,
           focusFollowsMouse = True,
@@ -43,15 +63,15 @@ main = do
           manageHook = manageDocks <+> manageHook def,
           layoutHook = myLayouts
           } `additionalKeys`
-          [ ((0, xK_Scroll_Lock), spawn "dm-tool lock")
-          , ((0, xF86XK_Tools), spawn "/usr/bin/pcmanfm")
-          , ((0, xF86XK_Launch5), spawn "/usr/bin/pcmanfm")
+          [ ((0, xK_Scroll_Lock),     spawn "dm-tool lock")
+          , ((0, xF86XK_Tools),       spawn "/usr/bin/nautilus")
+          , ((0, xF86XK_Launch5),     spawn "/usr/bin/nautilus")
           , ((controlMask, xK_Print), spawn "sleep 0.2; shutter -f")
-          , ((0, xK_Print), spawn "shutter -s")
-          , ((0, xF86XK_AudioPlay), spawn "playerctl play-pause")
-          , ((0, xF86XK_AudioStop), spawn "playerctl stop")
-          , ((0, xF86XK_AudioPrev), spawn "playerctl previous")
-          , ((0, xF86XK_AudioNext), spawn "playerctl next")
+          , ((0, xK_Print),           spawn "shutter -s")
+          , ((0, xF86XK_AudioPlay),   spawn "playerctl play-pause")
+          , ((0, xF86XK_AudioStop),   spawn "playerctl stop")
+          , ((0, xF86XK_AudioPrev),   spawn "playerctl previous")
+          , ((0, xF86XK_AudioNext),   spawn "playerctl next")
           ]
 
 -- | The xmonad key bindings. Add, modify or remove key bindings here.

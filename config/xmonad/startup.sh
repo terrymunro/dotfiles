@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #yourStartUpApplication &
-xmobar &
-xmonad
+#xmobar &
+xmonad --replace

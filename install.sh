@@ -37,9 +37,8 @@ done
 # Link dotfiles versions
 echo "Linking dotfile versions..."
 mkdir -p $HOME/.config
-ln -s $DOTFILES/config/zsh/zprofile     $HOME/.zprofile
+ln -s $DOTFILES/config/zsh/zshenv       $HOME/.zshenv
 ln -s $DOTFILES/config/zsh/zshrc        $HOME/.zshrc
-ln -s $DOTFILES/config/nvim/init.vim    $HOME/.vimrc
 ln -s $DOTFILES/config/nvim/init.vim    $HOME/.vimrc
 ln -s $DOTFILES/config/nvim             $HOME/.vim
 ln -s $DOTFILES/config/git/gitconfig    $HOME/.gitconfig
@@ -47,7 +46,6 @@ ln -s $DOTFILES/config/tmux/tmux.conf   $HOME/.tmux.conf
 ln -s $DOTFILES/config/xmonad           $HOME/.xmonad
 ln -s $DOTFILES/zsh/oh-my-zsh           $HOME/.oh-my-zsh
 
-ln -s $DOTFILES/config/xinitrc          $HOME/.xinitrc
 ln -s $DOTFILES/config/xmonad           $HOME/.config/xmonad
 ln -s $DOTFILES/config/nvim             $HOME/.config/nvim
 
