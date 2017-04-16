@@ -27,5 +27,5 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 # Change Capslock to Escape
 xmodmap $HOME/dotfiles/config/xmodmap-esc
 
-# Disable touchpad
-/bin/bash $HOME/dotfiles/scripts/disable_touchpad.sh
+# Disable touchpad - in the startup for now.
+#/bin/bash $HOME/dotfiles/scripts/disable_touchpad.sh
