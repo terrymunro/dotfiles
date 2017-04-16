@@ -50,6 +50,7 @@ Plug 'tomtom/tlib_vim'
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'garbas/vim-snipmate'
 Plug 'ervandew/supertab'
+Plug 'wesQ3/vim-windowswap'
 
 " Powerline
 Plug 'itchyny/lightline.vim'
@@ -89,67 +90,94 @@ call plug#end()
 " Settings {{{
 " =============================================================================
 
-let g:EditorConfig_exclude_patterns = ['fugitive://.*']
-let NERDTreeShowHidden=1
+" -----------------------------------------------------------------------------
+"  General Config
+" -----------------------------------------------------------------------------
+set number                                  " Line numbers
+set backspace=indent,eol,start              " Allow backspace in insert mode
+set showmode                                " Show current mode
+set visualbell                              " Sounds are annoying
+set autoread                                " Reload files changed outside vim
 
-set nu
-set autoindent
+" This makes vim act like all other editors, buffers can exist in the
+" background without being in a window.
+set hidden
+
+" -----------------------------------------------------------------------------
+"  Indentation
+" -----------------------------------------------------------------------------
 set smartindent
+set shiftwidth=2
+set softtabstop=2
+set tabstop=2
+set expandtab
+
+" Display tabs and spaces visually
+set list
+"neovim defaults are probs better
+"set listchars=tab:\|\ ,trail:·
+
+" -----------------------------------------------------------------------------
+"  Folds
+" -----------------------------------------------------------------------------
+set foldmethod=indent                       " Fold based on indent
+set foldnestmax=3                           " Deepest fold is 3 levels
+set foldlevelstart=99
+
+" -----------------------------------------------------------------------------
+"  Completion
+" -----------------------------------------------------------------------------
+set wildmenu
+set wildmode=full
+set wildignore=*.o,*.obj,*~                 " Ignore when tab completing
+set wildignore+=target/*
+set wildignore+=node_modules/*
+
+" -----------------------------------------------------------------------------
+"  Scrolling
+" -----------------------------------------------------------------------------
+set scrolloff=8                             " Start scrolling when we're 8
+set sidescrolloff=15
+set sidescroll=1
+
+" -----------------------------------------------------------------------------
+"  Search
+" -----------------------------------------------------------------------------
+set ignorecase
+set smartcase
+
+" -----------------------------------------------------------------------------
+"  Custom Settings
+" -----------------------------------------------------------------------------
 set lazyredraw
 set laststatus=2
-set showcmd
-set visualbell
-set backspace=indent,eol,start
 set timeoutlen=500
 set whichwrap=b,s
 set shortmess=aIT
-set hlsearch " CTRL-L / CTRL-R W
-set incsearch
-set hidden
-set ignorecase smartcase
-set wildmenu
-set wildmode=full
-set tabstop=2
-set shiftwidth=2
-set expandtab smarttab
-set scrolloff=5
 set encoding=utf-8
-set list
-set listchars=tab:\|\ ,
 set virtualedit=block
 set nojoinspaces
 set diffopt=filler,vertical
-set autoread
 set clipboard=unnamed
-set foldlevelstart=99
 set grepformat=%f:%l:%c:%m,%f:%l:%m
 set completeopt=menuone,preview
 set nocursorline
 set nrformats=hex
-silent! set cryptmethod=blowfish2
 
 set pastetoggle=<F9>
 set modelines=2
 set synmaxcol=1000
 
+silent! set cryptmethod=blowfish2
+
 " Keep the cursor on the same column
 set nostartofline
-
-let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-colorscheme OceanicNext
-let g:lightline = {
-      \ 'colorscheme': 'oceanicnext',
-      \ 'component': {
-      \   'readonly': '%{&readonly?"⭤":""}',
-      \ },
-      \ 'separator': { 'left': '⮀', 'right': '⮂' },
-      \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
-      \ }
 
 " ctags
 set tags=./tags;/
 
-let $FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*" --glob "!**target/*"'
+" set complete=.,w,b,u,t
+set complete-=i
 
 " Annoying temporary files
 set backupdir=/tmp//,.
@@ -157,9 +185,6 @@ set directory=/tmp//,.
 if v:version >= 703
   set undodir=/tmp//,.
 endif
-
-" set complete=.,w,b,u,t
-set complete-=i
 
 " 80 chars/line
 set textwidth=0
@@ -171,6 +196,7 @@ set formatoptions+=1
 if has('patch-7.3.541')
   set formatoptions+=j
 endif
+
 if has('patch-7.4.338')
   let &showbreak = '↳ '
   set breakindent
@@ -198,6 +224,22 @@ endif
 " %P Percentage
 " %#HighlightGroup#
 set statusline=%<[%n]\ %F\ %m%r%y\ %{exists('g:loaded_fugitive')?fugitive#statusline():''}\ %=%-14.(%l,%c%V%)\ %P
+
+let g:EditorConfig_exclude_patterns = ['fugitive://.*']
+let NERDTreeShowHidden=1
+
+let $FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*" --glob "!**target/*"'
+
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+colorscheme OceanicNext
+let g:lightline = {
+      \ 'colorscheme': 'oceanicnext',
+      \ 'component': {
+      \   'readonly': '%{&readonly?"⭤":""}',
+      \ },
+      \ 'separator': { 'left': '⮀', 'right': '⮂' },
+      \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
+      \ }
 
 " }}}
 " =============================================================================
@@ -306,13 +348,13 @@ nnoremap g[ :pop<cr>
 nnoremap <C-p> <C-i>
 
 " <F10>, <C-n> | NERD Tree
-nnoremap <F10> :NERDTreeToggle<cr>
-nnoremap <C-n> :NERDTreeToggle<cr>
+nnoremap <F10> :NERDTreeToggle<CR>
+nnoremap <C-n> :NERDTreeToggle<CR>
 
 " <F11> | Tagbar
 if v:version >= 703
-  inoremap <F11> <esc>:TagbarToggle<cr>
-  nnoremap <F11> :TagbarToggle<cr>
+  inoremap <F11> <ESC>:TagbarToggle<CR>
+  nnoremap <F11> :TagbarToggle<CR>
   let g:tagbar_sort = 0
 endif
 
@@ -327,35 +369,35 @@ inoremap <C-^> <C-o><C-^>
 nnoremap Y y$
 
 " Ensime
-nnoremap <localleader>t :EnTypeCheck<CR>
+nnoremap <LocalLeader>t :EnTypeCheck<CR>
 
 " ----------------------------------------------------------------------------
 " nvim
 " ----------------------------------------------------------------------------
 if has('nvim')
-  tnoremap <a-a> <esc>a
-  tnoremap <a-b> <esc>b
-  tnoremap <a-f> <esc>f
+  tnoremap <A-a> <ESC>a
+  tnoremap <A-b> <ESC>b
+  tnoremap <A-f> <ESC>f
 endif
 
 " ----------------------------------------------------------------------------
 " Buffers
 " ----------------------------------------------------------------------------
-nnoremap ]b :bnext<cr>
-nnoremap [b :bprev<cr>
+nnoremap ]b :bnext<CR>
+nnoremap [b :bprev<CR>
 
 " ----------------------------------------------------------------------------
 " Haskell
 " ----------------------------------------------------------------------------
-map <silent> tw :GhcModTypeInsert<CR>
-map <silent> ts :GhcModSplitFunCase<CR>
-map <silent> tq :GhcModType<CR>
-map <silent> te :GhcModTypeClear<CR>
+nmap <Leader>tw :GhcModTypeInsert<CR>
+nmap <Leader>ts :GhcModSplitFunCase<CR>
+nmap <Leader>tq :GhcModType<CR>
+nmap <Leader>te :GhcModTypeClear<CR>
 
 " ----------------------------------------------------------------------------
 " vim-fugitive
 " ----------------------------------------------------------------------------
-nmap     <Leader>g :Gstatus<CR>gg<c-n>
+nmap     <Leader>g :Gstatus<CR>gg<C-n>
 nnoremap <Leader>d :Gdiff<CR>
 
 " ----------------------------------------------------------------------------
@@ -419,8 +461,8 @@ endfunction
 if has_key(g:plugs, 'ultisnips')
   " UltiSnips will be loaded only when tab is first pressed in insert mode
   if !exists(':UltiSnipsEdit')
-    inoremap <silent> <Plug>(tab) <c-r>=plug#load('ultisnips')?UltiSnips#ExpandSnippet():''<cr>
-    imap <tab> <Plug>(tab)
+    inoremap <silent> <Plug>(tab) <C-r>=plug#load('ultisnips')?UltiSnips#ExpandSnippet():''<CR>
+    imap <Tab> <Plug>(tab)
   endif
 
   let g:SuperTabMappingForward  = "<tab>"
@@ -430,23 +472,23 @@ if has_key(g:plugs, 'ultisnips')
                            \ a:m == 'n' ? "\<tab>" : "\<s-tab>")
   endfunction
 else
-  inoremap <silent> <tab>   <c-r>=<SID>super_duper_tab(pumvisible(), 1)<cr>
-  inoremap <silent> <s-tab> <c-r>=<SID>super_duper_tab(pumvisible(), 0)<cr>
+  inoremap <silent> <Tab>   <C-r>=<SID>super_duper_tab(pumvisible(), 1)<CR>
+  inoremap <silent> <S-Tab> <C-r>=<SID>super_duper_tab(pumvisible(), 0)<CR>
 endif
 
 " ----------------------------------------------------------------------------
 " Markdown headings
 " ----------------------------------------------------------------------------
-nnoremap <leader>1 m`yypVr=``
-nnoremap <leader>2 m`yypVr-``
-nnoremap <leader>3 m`^i### <esc>``4l
-nnoremap <leader>4 m`^i#### <esc>``5l
-nnoremap <leader>5 m`^i##### <esc>``6l
+nnoremap <Leader>1 m`yypVr=``
+nnoremap <Leader>2 m`yypVr-``
+nnoremap <Leader>3 m`^i### <ESC>``4l
+nnoremap <Leader>4 m`^i#### <ESC>``5l
+nnoremap <Leader>5 m`^i##### <ESc>``6l
 
 " ----------------------------------------------------------------------------
 " <Leader>c Close quickfix/location window
 " ----------------------------------------------------------------------------
-nnoremap <leader>c :cclose<bar>lclose<cr>
+nnoremap <Leader>c :cclose<Bar>lclose<CR>
 
 " }}}
 " ============================================================================
