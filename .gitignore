@@ -4,9 +4,9 @@ config/nvim/undo/*
 config/nvim/plugged/*
 
 # XMonad
+*.hi
+*.o
 config/xmonad/xmonad.errors
-config/xmonad/xmonad.hi
-config/xmonad/xmonad.o
 config/xmonad/playerstatus
 config/xmonad/xmonad-x86_64-linux
 config/xmonad/xmonad.state

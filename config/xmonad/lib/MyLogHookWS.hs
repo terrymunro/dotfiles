@@ -6,7 +6,7 @@ import XMonad
 
 -- hooks --
 import XMonad.Hooks.DynamicLog
-import qualified GHC.IO.Handle.Types as H
+import qualified GHC.IO.Handle.Types
 
 -- miscellaneous --
 import System.IO
@@ -26,7 +26,7 @@ leftDeco fgWS bgWS = "^fg(" ++ myColor bgWS ++ ")"
 rightDeco = "^fg()^bg()"
 
 
-myLogHookWS :: H.Handle -> X ()
+myLogHookWS :: Handle -> X ()
 myLogHookWS h = dynamicLogWithPP $ def
   {
     ppCurrent         = wrap (leftDeco "DarkGray" "Yellow") rightDeco
@@ -42,9 +42,9 @@ myLogHookWS h = dynamicLogWithPP $ def
   , ppWsSep           = ""
   , ppSep             = "      "
   , ppOrder           = \(ws:l:t:_) -> [ws]
-  , ppLayout          = dzenColor (myColor "Foreground") (myColor "Background") 
+  , ppLayout          = dzenColor (myColor "Foreground") (myColor "Background")
   , ppTitle           = dzenColor (myColor "Foreground") (myColor "Background")
-  , ppOutput          = hPutStrLn h 
+  , ppOutput          = hPutStrLn h
   }
   where 
     icon_grid = wrapXBitmapWS "grid.xbm"

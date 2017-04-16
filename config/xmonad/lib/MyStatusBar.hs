@@ -31,22 +31,23 @@ bgColor = myColor "Background"
 dcColor = myColor "Decoration"
 spColor = myColor "Separator"
 
-screenWidth = "1280"
+screenWidth = "3840"
 
-font1 = "awesome-9"
-font2 = "profont-9"
-font3 = "Droid Sans Fallback-9:bold"
-font4 = "takaopgothic-9"             -- debian
+font = "Iosevka Nerd Font-14"
 
-dzenArgs = " -p -e 'button3=' -fn '"++font3++"' "
-dzenColors = " -fg '"++fgColor++"' -bg '"++bgColor++"' "
+dzenArgs   = " -p -e 'button3=' -fn '" ++ font ++ "' "
+dzenColors = " -fg '" ++ fgColor ++ "' -bg '" ++ bgColor ++ "' "
 
 -------------------------------------------------------------------------------
 -- Top
 
-csbdTopBackground = "echo '^fg("++dcColor++")^p(;-10)^r("++screenWidth++"x5)' |"
-    ++ " dzen2 -ta c -h 35 -w "++screenWidth++" "
-    ++ dzenArgs ++ dzenColors
+csbdTopBackground = "\
+    \  echo '"
+    ++   "^fg(" ++ dcColor ++ ")"
+    ++   "^p(-10)"
+    ++   "^r(" ++ screenWidth ++ "x5)"
+    ++ "' |"
+    ++ " dzen2 -ta c -h 45 -w " ++ screenWidth ++ " " ++ dzenArgs ++ dzenColors
 
 -------------------------------------------------------------------------------
 
@@ -56,19 +57,19 @@ scriptSSID = "\
  \    SSID=$(iw dev $WIFI link | grep SSID: | awk '{print $2}');\
  \    echo -n '^i(.xmonad/assets/monitor/wireless.xbm) ';\
  \    echo -n $SSID;\
- \  fi; "
+ \  fi;"
 
 csbdTopLeftScript = "\
- \  echo -n '^fg("++dcColor++")\
+ \  echo -n '^fg(" ++ dcColor ++ ")\
     \^i(.xmonad/assets/deco/mt1.xbm)^fg()  ';\
- \ "++ scriptSSID ++"\
- \  echo -n ' ^fg("++dcColor++")\
+ \ " ++ scriptSSID ++ "\
+ \  echo -n ' ^fg(" ++ dcColor ++ ")\
     \^i(.xmonad/assets/deco/arrow.xbm)^fg()';\
- \  echo -n '^bg("++dcColor++")  ';\
- \  echo -n '^fg("++spColor++"):: ^fg()';\
+ \  echo -n '^bg(" ++ dcColor ++ ")  ';\
+ \  echo -n '^fg(" ++ spColor ++ "):: ^fg()';\
  \  sh ~/.xmonad/assets/bin/chunk_net_speed.sh;\
  \  echo -n '^bg()';\
- \  echo -n '^fg("++dcColor++")\
+ \  echo -n '^fg(" ++ dcColor ++ ")\
     \^i(.xmonad/assets/deco/arrow_rev.xbm)^fg()';\
  \  echo ;"
 
@@ -77,30 +78,30 @@ csbdTopLeft = "sleep 0.5 && "
     ++   csbdTopLeftScript
     ++ " done"
     ++ " |" -- pipe
-    ++ " dzen2 -ta l -h 21 -y 4 -w 350 -x 0 "
+    ++ " dzen2 -ta l -h 21 -y 4 -w 450 -x 0 "
     ++ dzenArgs ++ dzenColors
 
 -------------------------------------------------------------------------------
 
 scriptCPU = "\
- \  echo -n '^fg("++spColor++") :: ^fg()\
+ \  echo -n '^fg(" ++ spColor ++ ") :: ^fg()\
     \^i(.xmonad/assets/monitor/cpu.xbm) ';\
  \  sh ~/.xmonad/assets/bin/chunk_cpu_usage.sh;"
 
 scriptMem = "\
- \  echo -n '^fg("++spColor++"):: ^fg()\
+ \  echo -n '^fg(" ++ spColor ++ "):: ^fg()\
     \^i(.xmonad/assets/monitor/mem.xbm) ';\
  \  mem_total=$(free | awk 'FNR == 2 {print $2}');\
  \  mem_used=$(free | awk 'FNR == 2 {print $3}');\
  \  echo -n $[$mem_used * 100 / $mem_total];"
 
-scriptPac = "\
+{-scriptPac = "\
  \  echo -n '^fg("++spColor++")\
     \^ca(1, .xmonad/assets/bin/pacshow)';\
  \  echo -n '^fg("++spColor++") :: ^fg()\
     \^i(.xmonad/assets/monitor/pacman.xbm) ';\
  \  echo -n `pacman -Qu | wc -l`;\
- \  echo -n '^ca()^fg()';"
+ \  echo -n '^ca()^fg()';"-}
 
 scriptDiskUsage = "\
  \  echo -n ':: ';\
@@ -110,20 +111,20 @@ scriptDiskUsage = "\
  \  then FORE='red'; \
  \  else FORE='#cccccc'; \
  \  fi; \
- \  echo -n $(echo $DISK | gdbar -bg '"++spColor++"' -fg $FORE -h 3 -w 60);"
+ \  echo -n $(echo $DISK | gdbar -bg '" ++ spColor ++ "' -fg $FORE -h 3 -w 80);"
 
+-- \ "++ scriptPac ++"\
 csbdTopRightScript = "\
- \  echo -n '^fg("++dcColor++")\
+ \  echo -n '^fg(" ++ dcColor ++ ")\
     \^i(.xmonad/assets/deco/arrow.xbm)^fg()';\
- \  echo -n '^bg("++dcColor++")';\
- \ "++ scriptCPU ++"\
- \ "++ scriptMem ++"\
- \ "++ scriptPac ++"\
+ \  echo -n '^bg(" ++ dcColor ++ ")';\
+ \ " ++ scriptCPU ++ "\
+ \ " ++ scriptMem ++ "\
  \  echo -n '^bg()';\
- \  echo -n '^fg("++dcColor++")\
+ \  echo -n '^fg(" ++ dcColor ++ ")\
     \^i(.xmonad/assets/deco/arrow_rev.xbm)^fg()';\
- \ "++ scriptDiskUsage ++"\
- \  echo -n ' ^fg("++dcColor++")\
+ \ " ++ scriptDiskUsage ++ "\
+ \  echo -n ' ^fg(" ++ dcColor ++ ")\
     \^i(.xmonad/assets/deco/mt2.xbm)^fg()';\
  \  echo ;"
 
@@ -132,7 +133,7 @@ csbdTopRight = "sleep 0.5 && "
     ++   csbdTopRightScript
     ++ " done"
     ++ " |" -- pipe
-    ++ " dzen2 -ta r -h 21 -y 4 -w 350 -x -350 "
+    ++ " dzen2 -ta r -y 40 -w 450"
     ++ dzenArgs ++ dzenColors
 
 -------------------------------------------------------------------------------
@@ -158,18 +159,18 @@ scriptAlsa = "\
  \  if [[ $ASTATUS = 'on' ]]; \
  \  then \
  \    echo -n '^i(.xmonad/assets/monitor/spkr_01.xbm) ';\
- \    echo -n $(echo $AVOL | gdbar -bg '"++spColor++"' -fg '#d6d6d6' -h 3 -w 60);\
+ \    echo -n $(echo $AVOL | gdbar -bg '" ++ spColor ++ "' -fg '#d6d6d6' -h 3 -w 60);\
  \  else \
  \    echo -n '^i(.xmonad/assets/monitor/spkr_02.xbm) ';\
- \    echo -n $(echo 0 | gdbar -bg '"++spColor++"' -fg '#d6d6d6' -h 3 -w 60);\
+ \    echo -n $(echo 0 | gdbar -bg '" ++ spColor ++ "' -fg '#d6d6d6' -h 3 -w 60);\
  \  fi; \
  \ \
  \  echo -n '^ca()^ca()^ca()^ca()^fg()';"
 
 csbdTopCenterScript = "\
- \  echo -n '^fg("++spColor++")';\
- \ "++ scriptMPD ++"\
- \ "++ scriptAlsa ++"\
+ \  echo -n '^fg(" ++ spColor ++ ")';\
+ \ " ++ scriptMPD ++ "\
+ \ " ++ scriptAlsa ++ "\
  \  echo ;"
 
 csbdTopCenter = "sleep 0.5 && "
@@ -178,22 +179,22 @@ csbdTopCenter = "sleep 0.5 && "
     ++ " done"
     ++ " |" -- pipe
     ++ " dzen2 -ta c -h 18 -x 0 -y 4 "
-    ++ " -w `expr "++screenWidth++" - 600` -x 300 "
+    ++ " -w `expr " ++ screenWidth ++ " - 600` -x 300 "
     ++ dzenArgs ++ dzenColors
 
 -------------------------------------------------------------------------------
 -- Bottom
 
 csbdBottomBackground = ""
-    ++ "echo '^fg("++dcColor++")^p(;21)^r("++screenWidth++"x5)' |"
-    ++ " dzen2 -ta c -h 35 -y -35 -w "++screenWidth++" "
+    ++ "echo '^fg(" ++ dcColor ++ ")^p(;21)^r(" ++ screenWidth ++ "x5)' |"
+    ++ " dzen2 -ta c -h 35 -y -4 -w " ++ screenWidth ++ " "
     ++ dzenArgs ++ dzenColors
 
 -------------------------------------------------------------------------------
 
 csbdBottomLeft = "sleep 1; "
     ++ " dzen2 -ta l -h 25 -y -30 "
-    ++ " -w `expr "++screenWidth++" / 2` "
+    ++ " -w `expr " ++ screenWidth ++ " / 2` "
     ++ dzenArgs ++ dzenColors
 
 -------------------------------------------------------------------------------
@@ -203,9 +204,9 @@ scriptClock = "\
  \  echo -n $(date +'%a %b %d %H:%M');"
 
 csbdBottomRightScript = "\
- \  echo -n '^fg("++dcColor++")\
-    \^i(.xmonad/assets/deco/mr2.xbm)^fg()^bg("++dcColor++")';\
- \ "++ scriptClock ++"\
+ \  echo -n '^fg(" ++ dcColor ++ ")\
+    \^i(.xmonad/assets/deco/mr2.xbm)^fg()^bg(" ++ dcColor ++ ")';\
+ \ " ++ scriptClock ++ "\
  \  echo -n '     ^bg()';\
  \  echo;" 
 
@@ -221,8 +222,7 @@ csbdBottomRight = "sleep 1.5 && "
 
 csbdBottomCenter = "sleep 2; "
     ++ " dzen2 -ta c -h 20 -y -25 "
---  ++ " -w 500 -x `expr "++screenWidth++" / 2 - 250` "
-    ++ " -w 450 -x `expr "++screenWidth++" / 2 - 150` " --  1280 or 1024
+    ++ " -w 600 -x `expr " ++ screenWidth ++ " / 2 - 150` "
     ++ dzenArgs ++ dzenColors
 
 --    test your color

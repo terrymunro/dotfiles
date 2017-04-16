@@ -73,6 +73,7 @@ Plug 'derekwyatt/vim-scala'
 Plug 'ensime/ensime-vim'
 Plug 'eagletmt/ghcmod-vim'
 Plug 'eagletmt/neco-ghc'
+Plug 'bitc/vim-hdevtools'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
 Plug 'groenewege/vim-less'
@@ -226,7 +227,8 @@ endif
 set statusline=%<[%n]\ %F\ %m%r%y\ %{exists('g:loaded_fugitive')?fugitive#statusline():''}\ %=%-14.(%l,%c%V%)\ %P
 
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
-let NERDTreeShowHidden=1
+let NERDTreeShowHidden=0
+let NERDTreeIgnore = ['\.o$', '\.hi$']
 
 let $FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*" --glob "!**target/*"'
 
@@ -901,6 +903,12 @@ command! PlugHelp call fzf#run(fzf#wrap({
 
 " Ensime stuff
 autocmd BufWritePost *.scala silent :EnTypeCheck
+
+" Haskell
+augroup haskell
+  au FileType haskell nnoremap <buffer> <F1> :HdevtoolsType<CR>
+  au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsClear<CR>
+augroup END
 
 augroup vimrc
   " File types

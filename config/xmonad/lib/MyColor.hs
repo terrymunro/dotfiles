@@ -15,7 +15,8 @@ import Data.Map as M
 ------------------------------------------------------------------------
 
 -- Color names are easier to remember:
-colorSchemes =   
+colorSchemes :: [(String, String)]
+colorSchemes =
     [("Orange",       "#FD971F")
     ,("DarkGray",     "#1B1D1E")
     ,("Pink",         "#F92672")
@@ -33,12 +34,13 @@ colorSchemes =
     ,("PureBlack",    "#000000")
     ,("PureWhite",    "#FFFFFF")
 
-    ,("Foreground",   "#efefef")    
+    ,("Foreground",   "#efefef")
     ,("Background",   "#2d2d2d")
-    ,("Separator",    "#393939")    
+    ,("Separator",    "#393939")
     ,("RedHaruka",    "#c90c25")
-    ,("BlueUnknown",  "#5c5dad") 
-    ,("Decoration",   "#2980b9") 
-    ]    
+    ,("BlueUnknown",  "#5c5dad")
+    ,("Decoration",   "#2980b9")
+    ]
 
+myColor :: String -> String
 myColor key = M.findWithDefault "#ffffff" key (fromList colorSchemes)

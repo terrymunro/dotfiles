@@ -10,7 +10,7 @@ import XMonad.Hooks.DynamicLog
 -------------------------------------------------------------------------------
 
 -- Workspaces
-myWorkspacenames = ["1:λ", "2:∞", "3:☎", "4:¬", "5", "6", "7", "8", "9:♫"]
+myWorkspacenames = ["λ", "∑", "∀", "∈", "5", "6", "7", "8", "∅"]
 
 myWorkspaces :: [String]
 myWorkspaces = clickable . map dzenEscape $ myWorkspacenames

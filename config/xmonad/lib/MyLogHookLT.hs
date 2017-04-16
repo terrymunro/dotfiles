@@ -6,7 +6,7 @@ import XMonad
 
 -- hooks --
 import XMonad.Hooks.DynamicLog
-import qualified GHC.IO.Handle.Types
+import GHC.IO.Handle.Types
 
 -- miscellaneous --
 import System.IO
@@ -21,9 +21,9 @@ makeSpace = wrap "   " "   "
 wrapXBitmapL bitmap = " ^i(.xmonad/assets/layout/"++bitmap++")  "
 wrapXBitmapT bitmap = "^i(.xmonad/assets/"++bitmap++")"
 
-myLogHookLT :: Handle -> PP
-myLogHookLT p = def
-  { ppOutput    = hPutStrLn p
+myLogHookLT :: Handle -> X ()
+myLogHookLT h = dynamicLogWithPP $ def
+  { ppOutput    = hPutStrLn h
   , ppSep       = ""
   , ppTitle     = titleWrapper . makeSpace
                 . (" " ++) . (icon_run ++) . (" " ++)
