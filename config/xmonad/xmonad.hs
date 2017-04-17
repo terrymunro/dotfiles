@@ -28,7 +28,7 @@ import XMonad.ManageHook
 myWorkspaces = [
   "1:λ",
   "2:∞",
-  "3:☎",
+  "3:",
   "4:¬",
   "5",
   "6",
@@ -47,15 +47,15 @@ myLayouts = avoidStruts (
     layoutHook def)
   where tall = Tall 1 (3/100) (1/2)
 
-main = do
-    xmproc <- spawnPipe "/usr/bin/xmobar /home/terry/.xmonad/xmobarrc"
-    xmonad $ ewmh def
+{-main = do-}
+    {-xmproc <- spawnPipe "/usr/bin/xmobar /home/terry/.xmonad/xmobarrc"-}
+main = xmonad =<< dzen def -- $ ewmh def
         { modMask = mod4Mask,
           terminal = "gnome-terminal",
           startupHook = setWMName "LG3D",
           keys = myKeys,
-          logHook = dynamicLogWithPP xmobarPP
-          { ppOutput = hPutStrLn xmproc, ppTitle = xmobarColor "green" "" . shorten 50 },
+--          logHook = dynamicLogWithPP xmobarPP
+--          { ppOutput = hPutStrLn xmproc, ppTitle = xmobarColor "green" "" . shorten 50 },
           borderWidth = 2,
           workspaces = myWorkspaces,
           focusFollowsMouse = True,
