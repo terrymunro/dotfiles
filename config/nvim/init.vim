@@ -19,7 +19,6 @@ Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
 Plug 'junegunn/vim-emoji'
 " Improvements to searching
 Plug 'junegunn/vim-slash'
-Plug 'junegunn/vim-journal'
 Plug 'junegunn/rainbow_parentheses.vim'
 " Defines text objects to target text after the designated characters
 Plug 'junegunn/vim-after-object'
@@ -35,6 +34,7 @@ Plug 'tpope/vim-tbone'    " Tmux
 "Plug 'tpope/vim-commentary',     { 'on': '<Plug>Commentary' }
 Plug 'scrooloose/nerdcommenter'
 Plug 'scrooloose/nerdtree',       { 'on': 'NERDTreeToggle' }
+Plug 'Xuyuanp/nerdtree-git-plugin'
 " trying w0rp/ale for now
 "Plug 'vim-syntastic/syntastic'
 Plug 'editorconfig/editorconfig-vim'
@@ -50,7 +50,11 @@ Plug 'tomtom/tlib_vim'
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'garbas/vim-snipmate'
 Plug 'ervandew/supertab'
-Plug 'wesQ3/vim-windowswap'
+Plug 'wesQ3/vim-windowswap'                           " ,ww
+Plug 'Yggdroot/indentLine'
+
+" Org-mode
+Plug 'jceb/vim-orgmode',          { 'for': 'org' }
 
 " Powerline
 Plug 'itchyny/lightline.vim'
@@ -66,22 +70,27 @@ Plug 'mhartington/oceanic-next'
 Plug 'junegunn/seoul256.vim'
 Plug 'tomasr/molokai'
 Plug 'AlessandroYorba/Monrovia'
+Plug 'joshdick/onedark.vim'
 
+
+Plug 'w0rp/ale',                  { 'on' : 'ALEEnable'  }
 " Languages
-Plug 'w0rp/ale',              { 'on': 'ALEEnable' }
-Plug 'derekwyatt/vim-scala'
-Plug 'ensime/ensime-vim'
-Plug 'eagletmt/ghcmod-vim'
-Plug 'eagletmt/neco-ghc'
-Plug 'pangloss/vim-javascript'
-Plug 'mxw/vim-jsx'
-Plug 'groenewege/vim-less'
-Plug 'honza/dockerfile.vim'
-Plug 'chrisbra/unicode.vim',  { 'for': 'journal' }
+Plug 'sheerun/vim-polyglot'
+Plug 'derekwyatt/vim-scala',      { 'for': 'scala'      }
+Plug 'ensime/ensime-vim',         { 'for': 'scala'      }
+Plug 'bitc/vim-hdevtools',        { 'for': 'haskell'    }
+Plug 'eagletmt/ghcmod-vim',       { 'for': 'haskell'    }
+Plug 'eagletmt/neco-ghc',         { 'for': 'haskell'    }
+Plug 'pangloss/vim-javascript',   { 'for': 'javascript' }
+Plug 'mxw/vim-jsx',               { 'for': 'javascript' }
+Plug 'flowtype/vim-flow',         { 'for': 'javascript' }
+Plug 'groenewege/vim-less',       { 'for': 'less'       }
+Plug 'honza/dockerfile.vim',      { 'for': 'dockerfile' }
 
 " Externals
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+
 
 call plug#end()
 
@@ -104,6 +113,13 @@ set autoread                                " Reload files changed outside vim
 set hidden
 
 " -----------------------------------------------------------------------------
+"  Colour
+" -----------------------------------------------------------------------------
+colorscheme onedark
+
+let lightline_theme = 'onedark'
+
+" -----------------------------------------------------------------------------
 "  Indentation
 " -----------------------------------------------------------------------------
 set smartindent
@@ -120,6 +136,7 @@ set list
 " -----------------------------------------------------------------------------
 "  Folds
 " -----------------------------------------------------------------------------
+set foldlevel=1
 set foldmethod=indent                       " Fold based on indent
 set foldnestmax=3                           " Deepest fold is 3 levels
 set foldlevelstart=99
@@ -203,10 +220,22 @@ if has('patch-7.4.338')
   set breakindentopt=sbr
 endif
 
-if has('termguicolors')
-  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-  set termguicolors
+"Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
+"If you're using tmux version 2.2 or later, you can remove the outermost $TMUX check and use tmux's 24-bit color support
+"(see < http://sunaku.github.io/tmux-24bit-color.html#usage > for more information.)
+if (empty($TMUX))
+  if (has("nvim"))
+    "For Neovim 0.1.3 and 0.1.4 < https://github.com/neovim/neovim/pull/2198 >
+    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+  endif
+  "For Neovim > 0.1.5 and Vim > patch 7.4.1799 < https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162 >
+  "Based on Vim patch 7.4.1770 (`guicolors` option) < https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd >
+  " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
+  if (has("termguicolors"))
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    set termguicolors
+  endif
 endif
 
 " %< Where to truncate
@@ -225,21 +254,16 @@ endif
 " %#HighlightGroup#
 set statusline=%<[%n]\ %F\ %m%r%y\ %{exists('g:loaded_fugitive')?fugitive#statusline():''}\ %=%-14.(%l,%c%V%)\ %P
 
-let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 let NERDTreeShowHidden=1
 
-let $FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*" --glob "!**target/*"'
+let g:EditorConfig_exclude_patterns = ['fugitive://.*']
+let g:indentLine_char = '┆'
+let g:indentLine_color_term = 239
+let g:ale_linters = {'haskell': ['stack-ghc', 'hlint', 'hdevtools']}
+let g:ale_open_list = 1
+let g:ale_keep_list_window_open = 1
 
-let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-colorscheme OceanicNext
-let g:lightline = {
-      \ 'colorscheme': 'oceanicnext',
-      \ 'component': {
-      \   'readonly': '%{&readonly?"⭤":""}',
-      \ },
-      \ 'separator': { 'left': '⮀', 'right': '⮂' },
-      \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
-      \ }
+let $FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*" --glob "!**target/*"'
 
 " }}}
 " =============================================================================
@@ -340,6 +364,8 @@ endif
 let mapleader       = ','
 let maplocalleader  = ','
 
+nnoremap <Leader>l  :ALEEnable<CR>
+
 " Tags
 nnoremap <C-]> g<C-]>
 nnoremap g[ :pop<cr>
@@ -350,6 +376,7 @@ nnoremap <C-p> <C-i>
 " <F10>, <C-n> | NERD Tree
 nnoremap <F10> :NERDTreeToggle<CR>
 nnoremap <C-n> :NERDTreeToggle<CR>
+nnoremap <Leader>n :NERDTreeFocus<CR>
 
 " <F11> | Tagbar
 if v:version >= 703
@@ -389,10 +416,12 @@ nnoremap [b :bprev<CR>
 " ----------------------------------------------------------------------------
 " Haskell
 " ----------------------------------------------------------------------------
-nmap <Leader>tw :GhcModTypeInsert<CR>
-nmap <Leader>ts :GhcModSplitFunCase<CR>
-nmap <Leader>tq :GhcModType<CR>
-nmap <Leader>te :GhcModTypeClear<CR>
+au FileType haskell nnoremap <buffer> <Leader>tw    :GhcModTypeInsert<CR>
+au FileType haskell nnoremap <buffer> <Leader>ts    :GhcModSplitFunCase<CR>
+au FileType haskell nnoremap <buffer> <Leader>tq    :GhcModType<CR>
+au FileType haskell nnoremap <buffer> <Leader>te    :GhcModTypeClear<CR>
+au FileType haskell nnoremap <buffer> <F1>          :HdevtoolsType<CR>
+au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsClear<CR>
 
 " ----------------------------------------------------------------------------
 " vim-fugitive
@@ -401,7 +430,7 @@ nmap     <Leader>g :Gstatus<CR>gg<C-n>
 nnoremap <Leader>d :Gdiff<CR>
 
 " ----------------------------------------------------------------------------
-" <tab> / <s-tab> / <c-v><tab> | super-duper-tab
+" <tab> / <s-tab> / <c-v><tab> | super-duper-tab {{{
 " ----------------------------------------------------------------------------
 function! s:can_complete(func, prefix)
   if empty(a:func)
@@ -475,15 +504,17 @@ else
   inoremap <silent> <Tab>   <C-r>=<SID>super_duper_tab(pumvisible(), 1)<CR>
   inoremap <silent> <S-Tab> <C-r>=<SID>super_duper_tab(pumvisible(), 0)<CR>
 endif
+" }}}
+" ----------------------------------------------------------------------------
 
 " ----------------------------------------------------------------------------
 " Markdown headings
 " ----------------------------------------------------------------------------
-nnoremap <Leader>1 m`yypVr=``
-nnoremap <Leader>2 m`yypVr-``
-nnoremap <Leader>3 m`^i### <ESC>``4l
-nnoremap <Leader>4 m`^i#### <ESC>``5l
-nnoremap <Leader>5 m`^i##### <ESc>``6l
+au FileType markdown nnoremap <buffer> <Leader>1 m`yypVr=``
+au FileType markdown nnoremap <buffer> <Leader>2 m`yypVr-``
+au FileType markdown nnoremap <buffer> <Leader>3 m`^i### <ESC>``4l
+au FileType markdown nnoremap <buffer> <Leader>4 m`^i#### <ESC>``5l
+au FileType markdown nnoremap <buffer> <Leader>5 m`^i##### <ESc>``6l
 
 " ----------------------------------------------------------------------------
 " <Leader>c Close quickfix/location window
@@ -722,25 +753,71 @@ augroup nerd_loader
         \| endif
 augroup END
 
-Plug 'Yggdroot/indentLine',     { 'on': 'IndentLinesEnable' }
 autocmd! User indentLine doautocmd indentLine Syntax
 
 " ----------------------------------------------------------------------------
 " lightline
 " ----------------------------------------------------------------------------
 let g:lightline = {
+      \ 'colorscheme': lightline_theme,
+      \ 'mode_map': { 'c': 'NORMAL' },
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ] ]
+      \ },
       \ 'component_function': {
-      \   'filetype': 'MyFiletype',
-      \   'fileformat': 'MyFileformat',
-      \ }
+      \   'modified': 'LightlineModified',
+      \   'readonly': 'LightlineReadonly',
+      \   'fugitive': 'LightlineFugitive',
+      \   'filename': 'LightlineFilename',
+      \   'fileformat': 'LightlineFileformat',
+      \   'filetype': 'LightlineFiletype',
+      \   'fileencoding': 'LightlineFileencoding',
+      \   'mode': 'LightlineMode',
+      \ },
+      \ 'separator': { 'left': '⮀', 'right': '⮂' },
+      \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
       \ }
 
-function! MyFiletype()
+
+function! LightlineModified()
+  return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+endfunction
+
+function! LightlineReadonly()
+  return &ft !~? 'help\|vimfiler\|gundo' && &readonly ? '⭤' : ''
+endfunction
+
+function! LightlineFilename()
+  return ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
+        \ (&ft == 'vimfiler' ? vimfiler#get_status_string() :
+        \  &ft == 'unite' ? unite#get_status_string() :
+        \  &ft == 'vimshell' ? vimshell#get_status_string() :
+        \ '' != expand('%:t') ? expand('%:t') : '[No Name]') .
+        \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
+endfunction
+
+function! LightlineFugitive()
+  if &ft !~? 'vimfiler\|gundo' && exists("*fugitive#head")
+    let branch = fugitive#head()
+    return branch !=# '' ? '⭠ '.branch : ''
+  endif
+  return ''
+endfunction
+
+function! LightlineFileformat()
+  return winwidth(0) > 70 ? (&fileformat . ' ' . WebDevIconsGetFileFormatSymbol()) : ''
+endfunction
+
+function! LightlineFiletype()
   return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
 endfunction
 
-function! MyFileformat()
-  return winwidth(0) > 70 ? (&fileformat . ' ' . WebDevIconsGetFileFormatSymbol()) : ''
+function! LightlineFileencoding()
+  return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
+endfunction
+
+function! LightlineMode()
+  return winwidth(0) > 60 ? lightline#mode() : ''
 endfunction
 
 " ----------------------------------------------------------------------------
@@ -902,10 +979,14 @@ command! PlugHelp call fzf#run(fzf#wrap({
 " Ensime stuff
 autocmd BufWritePost *.scala silent :EnTypeCheck
 
-augroup vimrc
-  " File types
-  au BufNewFile,BufRead Dockerfile*         set filetype=dockerfile
+augroup FiletypeGroup
+  autocmd!
 
+  au BufNewFile,BufRead               *.hs          set filetype=haskell
+  au BufNewFile,BufRead               Dockerfile*   set filetype=dockerfile
+augroup END
+
+augroup vimrc
   " Fugitive
   au FileType gitcommit setlocal completefunc=emoji#complete
   au FileType gitcommit nnoremap <buffer> <silent> cd :<C-U>Gcommit --amend --date="$(date)"<CR>

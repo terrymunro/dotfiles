@@ -1,4 +1,4 @@
-export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/sbin:/usr/sbin:$HOME/.local/bin:$HOME/dotfiles/scripts:$PATH"
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/sbin:/usr/sbin:$HOME/.local/bin:$HOME/dotfiles/scripts:$HOME/.local/share/JetBrains/Toolbox/bin:/opt/viber:$PATH"
 
 export MANPATH="/usr/local/man:$MANPATH"
 
@@ -24,8 +24,13 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# Change Capslock to Escape
-xmodmap $HOME/dotfiles/config/xmodmap-esc
+# Custom Prompt
+export PROMPT="> %F{green}%Bλ%b%f "
 
-# Disable touchpad
-/bin/bash $HOME/dotfiles/scripts/disable_touchpad.sh
+# Aliases
+alias zshconfig="nvim ~/.zshrc"
+alias ohmyzsh="nvim ~/.oh-my-zsh"
+alias vi="nvim"
+alias vim="nvim"
+alias gvim="nvim"
+alias tmux="tmux -2"

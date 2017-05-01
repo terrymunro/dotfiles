@@ -1,13 +1,15 @@
-import qualified Data.Map as M
-import qualified XMonad.StackSet as W
+import System.Exit
+import System.IO
+
 import Data.Bits ((.|.))
 import Data.Monoid
 import Data.Ratio
+import qualified Data.Map as M
+
 import Graphics.X11.Xlib
 import Graphics.X11.Xlib.Extras
 import Graphics.X11.ExtraTypes.XF86
-import System.Exit
-import System.IO
+
 import XMonad
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
@@ -20,48 +22,27 @@ import XMonad.Layout
 import XMonad.Layout.Grid
 import XMonad.Layout.ShowWName
 import XMonad.Layout.Spacing
-import XMonad.Layout.Spiral
 import XMonad.Layout.Tabbed
+import XMonad.Layout.ResizableTile
 import XMonad.Operations
 import XMonad.ManageHook
+import qualified XMonad.StackSet as W
 
-myWorkspaces = [
-  "1:λ",
-  "2:∞",
-  "3:",
-  "4:¬",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9:♫"]
-
-ratio :: Rational
-ratio = toRational ((1.0 + sqrt 5.0) / 2.0)
-
-myLayouts = avoidStruts (
-    tall          |||
-    spiral ratio  |||
-    Full          |||
-    Grid          |||
-    layoutHook def)
-  where tall = Tall 1 (3/100) (1/2)
-
-{-main = do-}
-    {-xmproc <- spawnPipe "/usr/bin/xmobar /home/terry/.xmonad/xmobarrc"-}
-main = xmonad =<< dzen def -- $ ewmh def
+main = do
+    xmproc <- spawnPipe "/usr/bin/xmobar $HOME/.xmonad/xmobarrc"
+    xmonad $ ewmh def
         { modMask = mod4Mask,
-          terminal = "gnome-terminal",
+          terminal = "terminix",
           startupHook = setWMName "LG3D",
           keys = myKeys,
---          logHook = dynamicLogWithPP xmobarPP
---          { ppOutput = hPutStrLn xmproc, ppTitle = xmobarColor "green" "" . shorten 50 },
+          logHook = dynamicLogWithPP xmobarPP
+              { ppOutput = hPutStrLn xmproc, ppTitle = xmobarColor "green" "" . shorten 50 },
           borderWidth = 2,
           workspaces = myWorkspaces,
           focusFollowsMouse = True,
           focusedBorderColor = "#f92672",
           manageHook = manageDocks <+> manageHook def,
-          layoutHook = myLayouts
+          layoutHook = showWName $ myLayouts
           } `additionalKeys`
           [ ((0, xK_Scroll_Lock),     spawn "dm-tool lock")
           , ((0, xF86XK_Tools),       spawn "/usr/bin/nautilus")
@@ -74,11 +55,23 @@ main = xmonad =<< dzen def -- $ ewmh def
           , ((0, xF86XK_AudioNext),   spawn "playerctl next")
           ]
 
+myWorkspaces = ["λ Work", "π Work Extra", "∀ Comms", "∈ Email", "5", "6", "7", "8", "∅ Music"]
+
+ratio :: Rational
+ratio = toRational ((1.0 + sqrt 5.0) / 2.0)
+
+myLayouts = avoidStruts (
+    tall          |||
+    Full          |||
+    Grid          |||
+    layoutHook def)
+      where tall = ResizableTall 1 (3/100) (1/2) []
+
+
 -- | The xmonad key bindings. Add, modify or remove key bindings here.
 --
 -- (The comment formatting character is used when generating the manpage)
---
-myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
+myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     -- launching and killing programs
     [ ((modMask .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf) -- %! Launch terminal
     , ((modMask,               xK_p     ), spawn "dmenu_run -b") -- %! Launch dmenu
@@ -105,6 +98,8 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     -- resizing the master/slave ratio
     , ((modMask,               xK_h     ), sendMessage Shrink) -- %! Shrink the master area
     , ((modMask,               xK_l     ), sendMessage Expand) -- %! Expand the master area
+    , ((modMask,               xK_z     ), sendMessage MirrorShrink)
+    , ((modMask,               xK_a     ), sendMessage MirrorExpand)
 
     -- floating layer support
     , ((modMask,               xK_t     ), withFocused $ windows . W.sink) -- %! Push window back into tiling
@@ -114,7 +109,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask              , xK_period), sendMessage (IncMasterN (-1))) -- %! Deincrement the number of windows in the master area
 
     -- quit, or restart
-    , ((modMask .|. shiftMask, xK_q     ), io (exitWith ExitSuccess)) -- %! Quit xmonad
+    , ((modMask .|. shiftMask, xK_q     ), io exitSuccess) -- %! Quit xmonad
     , ((modMask              , xK_q     ), spawn "if type xmonad; then xmonad --recompile && xmonad --restart; else xmessage xmonad not in \\$PATH: \"$PATH\"; fi") -- %! Restart xmonad
 
     , ((modMask .|. shiftMask, xK_slash ), spawn ("echo \"" ++ help ++ "\" | xmessage -file -")) -- %! Run xmessage with a summary of the default keybindings (useful for beginners)
