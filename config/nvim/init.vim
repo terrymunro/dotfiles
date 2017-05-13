@@ -56,6 +56,7 @@ Plug 'ervandew/supertab'
 Plug 'wesQ3/vim-windowswap'                           " ,ww
 Plug 'airblade/vim-gitgutter'
 Plug 'Yggdroot/indentLine'
+Plug 'majutsushi/tagbar'
 
 " Org-mode
 Plug 'jceb/vim-orgmode',          { 'for': 'org' }
@@ -260,6 +261,14 @@ let g:indentLine_color_term = 239
 let NERDTreeShowHidden=1
 
 " ----------------------------------------------------------------------------
+" Syntactic
+" ----------------------------------------------------------------------------
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+" ----------------------------------------------------------------------------
 " w0rp/ale
 " ----------------------------------------------------------------------------
 let g:ale_linters = {
@@ -288,6 +297,7 @@ imap jj <Esc>
 nnoremap <Leader>l :ALEEnable<CR>
 
 " Tags
+nmap <F8> :TagbarToggle<CR>
 nnoremap <C-]> g<C-]>
 nnoremap g[ :pop<CR>
 
@@ -317,13 +327,17 @@ nnoremap Y y$
 " ----------------------------------------------------------------------------
 " Terminal
 " ----------------------------------------------------------------------------
-tnoremap <ESC> <C-\><C-n>
-
 " Navigating to other windows easier terminal edition
 tnoremap <A-h> <C-\><C-n><C-w>h
 tnoremap <A-j> <C-\><C-n><C-w>j
 tnoremap <A-k> <C-\><C-n><C-w>k
 tnoremap <A-l> <C-\><C-n><C-w>l
+" Exiting insert mode easier in terminal
+tnoremap <ESC> <C-\><C-n>
+" ?
+tnoremap <A-a> <ESC>a
+tnoremap <A-b> <ESC>b
+tnoremap <A-f> <ESC>f
 
 " ----------------------------------------------------------------------------
 " Ensime
@@ -331,15 +345,6 @@ tnoremap <A-l> <C-\><C-n><C-w>l
 au FileType scala nnoremap <LocalLeader>t  :EnTypeCheck<CR>
 au FileType scala nnoremap <LocalLeader>df :EnDeclaration<CR>
 au FileType scala nnoremap <LocalLeader>ds :EnDeclarationSplit<CR>
-
-" ----------------------------------------------------------------------------
-" nvim
-" ----------------------------------------------------------------------------
-if has('nvim')
-  tnoremap <A-a> <ESC>a
-  tnoremap <A-b> <ESC>b
-  tnoremap <A-f> <ESC>f
-endif
 
 " ----------------------------------------------------------------------------
 " Buffers
@@ -678,39 +683,157 @@ onoremap <silent> a~ :<C-U>execute "normal va`"<cr>
 " ----------------------------------------------------------------------------
 " lightline | Status Bar
 " ----------------------------------------------------------------------------
-  " %< Where to truncate
-  " %n buffer number
-  " %F Full path
-  " %m Modified flag: [+], [-]
-  " %r Readonly flag: [RO]
-  " %y Type:          [vim]
-  " fugitive#statusline()
-  " %= Separator
-  " %-14.(...)
-  " %l Line
-  " %c Column
-  " %V Virtual column
-  " %P Percentage
-  " %#HighlightGroup#
-  " %{ALEGetStatusLine()}
-  " set statusline=%{ALEGetStatusLine()} %<[%n]\ %F\ %m%r%y\ %{exists('g:loaded_fugitive')?fugitive#statusline():''}\ %=%-14.(%l,%c%V%)\ %P
+let g:lightline = {
+      \ 'colorscheme': lightline_theme,
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ], ['ctrlpmark'] ],
+      \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
+      \ },
+      \ 'component_function': {
+      \   'fugitive': 'LightlineFugitive',
+      \   'filename': 'LightlineFilename',
+      \   'fileformat': 'LightlineFileformat',
+      \   'filetype': 'LightlineFiletype',
+      \   'fileencoding': 'LightlineFileencoding',
+      \   'mode': 'LightlineMode',
+      \   'ctrlpmark': 'CtrlPMark',
+      \ },
+      \ 'component_expand': {
+      \   'syntastic': 'SyntasticStatuslineFlag',
+      \ },
+      \ 'component_type': {
+      \   'syntastic': 'error',
+      \ },
+      \ 'subseparator': { 'left': '|', 'right': '|' }
+      \ }
 
+" {{{
+function! LightlineModified()
+  return &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+endfunction
+
+function! LightlineReadonly()
+  return &ft !~? 'help' && &readonly ? 'RO' : ''
+endfunction
+
+function! LightlineFilename()
+  let fname = expand('%:t')
+  return fname == 'ControlP' && has_key(g:lightline, 'ctrlp_item') ? g:lightline.ctrlp_item :
+        \ fname == '__Tagbar__' ? g:lightline.fname :
+        \ fname =~ '__Gundo\|NERD_tree' ? '' :
+        \ &ft == 'vimfiler' ? vimfiler#get_status_string() :
+        \ &ft == 'unite' ? unite#get_status_string() :
+        \ &ft == 'vimshell' ? vimshell#get_status_string() :
+        \ ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
+        \ ('' != fname ? fname : '[No Name]') .
+        \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
+endfunction
+
+function! LightlineFugitive()
+  try
+    if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && &ft !~? 'vimfiler' && exists('*fugitive#head')
+      let mark = ''  " edit here for cool mark
+      let branch = fugitive#head()
+      return branch !=# '' ? mark.branch : ''
+    endif
+  catch
+  endtry
+  return ''
+endfunction
+
+function! LightlineFileformat()
+  return winwidth(0) > 70 ? &fileformat : ''
+endfunction
+
+function! LightlineFiletype()
+  return winwidth(0) > 70 ? (&filetype !=# '' ? &filetype : 'no ft') : ''
+endfunction
+
+function! LightlineFileencoding()
+  return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
+endfunction
+
+function! LightlineMode()
+  let fname = expand('%:t')
+  return fname == '__Tagbar__' ? 'Tagbar' :
+        \ fname == 'ControlP' ? 'CtrlP' :
+        \ fname == '__Gundo__' ? 'Gundo' :
+        \ fname == '__Gundo_Preview__' ? 'Gundo Preview' :
+        \ fname =~ 'NERD_tree' ? 'NERDTree' :
+        \ &ft == 'unite' ? 'Unite' :
+        \ &ft == 'vimfiler' ? 'VimFiler' :
+        \ &ft == 'vimshell' ? 'VimShell' :
+        \ winwidth(0) > 60 ? lightline#mode() : ''
+endfunction
+
+function! CtrlPMark()
+  if expand('%:t') =~ 'ControlP' && has_key(g:lightline, 'ctrlp_item')
+    call lightline#link('iR'[g:lightline.ctrlp_regex])
+    return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
+          \ , g:lightline.ctrlp_next], 0)
+  else
+    return ''
+  endif
+endfunction
+
+let g:ctrlp_status_func = {
+  \ 'main': 'CtrlPStatusFunc_1',
+  \ 'prog': 'CtrlPStatusFunc_2',
+  \ }
+
+function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
+  let g:lightline.ctrlp_regex = a:regex
+  let g:lightline.ctrlp_prev = a:prev
+  let g:lightline.ctrlp_item = a:item
+  let g:lightline.ctrlp_next = a:next
+  return lightline#statusline(0)
+endfunction
+
+function! CtrlPStatusFunc_2(str)
+  return lightline#statusline(0)
+endfunction
+
+let g:tagbar_status_func = 'TagbarStatusFunc'
+
+function! TagbarStatusFunc(current, sort, fname, ...) abort
+    let g:lightline.fname = a:fname
+  return lightline#statusline(0)
+endfunction
+
+augroup AutoSyntastic
+  autocmd!
+  autocmd BufWritePost *.c,*.cpp call s:syntastic()
+augroup END
+function! s:syntastic()
+  SyntasticCheck
+  call lightline#update()
+endfunction
+
+let g:unite_force_overwrite_statusline = 0
+let g:vimfiler_force_overwrite_statusline = 0
+let g:vimshell_force_overwrite_statusline = 0
+"}}}
 let g:lightline = {
       \ 'colorscheme': lightline_theme,
       \ 'mode_map': { 'c': 'NORMAL' },
       \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename', 'ale' ], ]
+      \   'left': [
+      \     [ 'mode', 'paste' ],
+      \     [ 'fugitive', 'filename' ],
+      \     [ 'syntastic', 'ale' ]
+      \   ]
       \ },
       \ 'component_function': {
-      \   'modified':     'LightlineModified',
-      \   'readonly':     'LightlineReadonly',
-      \   'fugitive':     'LightlineFugitive',
-      \   'filename':     'LightlineFilename',
-      \   'fileformat':   'LightlineFileformat',
-      \   'filetype':     'LightlineFiletype',
+      \   'modified'    : 'LightlineModified',
+      \   'readonly'    : 'LightlineReadonly',
+      \   'fugitive'    : 'LightlineFugitive',
+      \   'filename'    : 'LightlineFilename',
+      \   'fileformat'  : 'LightlineFileformat',
+      \   'filetype'    : 'LightlineFiletype',
       \   'fileencoding': 'LightlineFileencoding',
-      \   'mode':         'LightlineMode',
-      \   'ale':          'ALEGetStatuSline'
+      \   'mode'        : 'LightlineMode',
+      \   'syntastic'   : 'SyntasticStatuslineFlag'
+      \   'ale'         : 'ALEGetStatusline'
       \ },
       \ 'separator': { 'left': '⮀', 'right': '⮂' },
       \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
