@@ -119,6 +119,12 @@ set magic                                   " Use 'magic' patterns (extended
 set hidden
 
 " -----------------------------------------------------------------------------
+"  Enable VIM crosshair muahahh -> WARNING: Can cause Vim to respond slowly <-
+" -----------------------------------------------------------------------------
+set cursorline
+set cursorcolumn
+
+" -----------------------------------------------------------------------------
 "  Colour
 " -----------------------------------------------------------------------------
 colorscheme onedark
@@ -202,6 +208,54 @@ set tags=./tags;/
 " set complete=.,w,b,u,t
 set complete-=i
 
+" -----------------------------------------------------------------------------
+" Plugin Settings
+" -----------------------------------------------------------------------------
+let g:EditorConfig_exclude_patterns = ['fugitive://.*']
+let g:ensime_server_v2 = 1
+
+let g:indentLine_char = '┆'
+let g:indentLine_color_term = 239
+
+" ----------------------------------------------------------------------------
+" FZF
+" ----------------------------------------------------------------------------
+"let g:fzf_layout = { 'window': 'enew' }
+
+" ----------------------------------------------------------------------------
+" NERDTree
+" ----------------------------------------------------------------------------
+let NERDTreeShowHidden=1
+
+" ----------------------------------------------------------------------------
+" Syntactic
+" ----------------------------------------------------------------------------
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+" ----------------------------------------------------------------------------
+" w0rp/ale
+" ----------------------------------------------------------------------------
+let g:ale_linters = {
+      \  'haskell': ['stack-ghc', 'hlint', 'hdevtools'],
+      \  'scala': ['scalac']
+      \}
+let g:ale_open_list = 0
+let g:ale_keep_list_window_open = 0
+let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
+
+" ----------------------------------------------------------------------------
+" undotree
+" ----------------------------------------------------------------------------
+let g:undotree_WindowLayout = 2
+nnoremap U :UndotreeToggle<CR>
+
+" ----------------------------------------------------------------------------
+" Other
+" ----------------------------------------------------------------------------
+
 " Annoying temporary files
 set backupdir=/tmp//,.
 set directory=/tmp//,.
@@ -243,46 +297,6 @@ if (empty($TMUX))
     set termguicolors
   endif
 endif
-
-let g:EditorConfig_exclude_patterns = ['fugitive://.*']
-let g:ensime_server_v2 = 1
-
-let g:indentLine_char = '┆'
-let g:indentLine_color_term = 239
-
-" ----------------------------------------------------------------------------
-" FZF
-" ----------------------------------------------------------------------------
-"let g:fzf_layout = { 'window': 'enew' }
-
-" ----------------------------------------------------------------------------
-" NERDTree
-" ----------------------------------------------------------------------------
-let NERDTreeShowHidden=1
-
-" ----------------------------------------------------------------------------
-" Syntactic
-" ----------------------------------------------------------------------------
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-
-" ----------------------------------------------------------------------------
-" w0rp/ale
-" ----------------------------------------------------------------------------
-let g:ale_linters = {
-      \  'haskell': ['stack-ghc', 'hlint', 'hdevtools'],
-      \  'scala': ['scalac']
-      \}
-let g:ale_open_list = 0
-let g:ale_keep_list_window_open = 0
-let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-
-" ----------------------------------------------------------------------------
-" vim-github-dashboard
-" ----------------------------------------------------------------------------
-"let g:github_dashboard = { 'username': 'terrymunro' }
 
 " }}}
 " =============================================================================
@@ -460,6 +474,192 @@ else
 endif
 " }}}
 " ----------------------------------------------------------------------------
+
+" }}}
+" =============================================================================
+" Plugin Specific Stuff {{{
+" =============================================================================
+
+" ----------------------------------------------------------------------------
+" lightline | Status Bar
+" ----------------------------------------------------------------------------
+let g:lightline = {
+      \ 'colorscheme': lightline_theme,
+      \ 'mode_map': { 'c': 'NORMAL' },
+      \ 'active': {
+      \   'left': [
+      \     [ 'mode', 'paste' ],
+      \     [ 'fugitive', 'filename' ],
+      \   ],
+      \   'right': [
+      \     [ 'syntastic', 'ale', 'lineinfo' ],
+      \     [ 'percent' ],
+      \     [ 'fileformat', 'fileencoding', 'filetype' ],
+      \   ],
+      \ },
+      \ 'component_function': {
+      \   'modified'    : 'LightlineModified',
+      \   'readonly'    : 'LightlineReadonly',
+      \   'fugitive'    : 'LightlineFugitive',
+      \   'filename'    : 'LightlineFilename',
+      \   'fileformat'  : 'LightlineFileformat',
+      \   'filetype'    : 'LightlineFiletype',
+      \   'fileencoding': 'LightlineFileencoding',
+      \   'mode'        : 'LightlineMode',
+      \ },
+      \ 'component_expand': {
+      \   'syntastic': 'SyntasticStatuslineFlag',
+      \   'ale'      : 'ALEGetStatusLine',
+      \ },
+      \ 'component_type': {
+      \   'syntastic': 'error',
+      \   'ale'      : 'error',
+      \ },
+      \ 'separator': { 'left': '⮀', 'right': '⮂' },
+      \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
+      \ }
+
+function! LightlineModified()
+  return &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+endfunction
+
+function! LightlineReadonly()
+  return &ft !~? 'help' && &readonly ? '⭤' : ''
+endfunction
+
+function! LightlineFilename()
+  let fname = expand('%:t')
+  return fname == '__Tagbar__' ? g:lightline.fname :
+        \ fname =~ '__Gundo\|NERD_tree' ? '' :
+        \ ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
+        \ ('' != fname ? fname : '[No Name]') .
+        \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
+endfunction
+
+function! LightlineFugitive()
+  try
+    if expand('%:t') !~? 'Tagbar\|NERD' && exists('*fugitive#head')
+      let mark = '⭠ '  " edit here for cool mark
+      let branch = fugitive#head()
+      return branch !=# '' ? mark.branch : ''
+    endif
+  catch
+  endtry
+  return ''
+endfunction
+
+function! LightlineFileformat()
+  return winwidth(0) > 70 ? (&fileformat . ' ' . WebDevIconsGetFileFormatSymbol()) : ''
+endfunction
+
+function! LightlineFiletype()
+  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
+endfunction
+
+function! LightlineFileencoding()
+  return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
+endfunction
+
+function! LightlineMode()
+  let fname = expand('%:t')
+  return fname == '__Tagbar__' ? 'Tagbar' :
+        \ fname =~ 'NERD_tree' ? 'NERDTree' :
+        \ winwidth(0) > 60 ? lightline#mode() : ''
+endfunction
+
+let g:tagbar_status_func = 'TagbarStatusFunc'
+
+function! TagbarStatusFunc(current, sort, fname, ...) abort
+    let g:lightline.fname = a:fname
+  return lightline#statusline(0)
+endfunction
+
+augroup AutoSyntastic
+  autocmd!
+  autocmd BufWritePost *.c,*.cpp call s:syntastic()
+augroup END
+function! s:syntastic()
+  SyntasticCheck
+  call lightline#update()
+endfunction
+
+let g:unite_force_overwrite_statusline = 0
+let g:vimfiler_force_overwrite_statusline = 0
+let g:vimshell_force_overwrite_statusline = 0
+
+" ----------------------------------------------------------------------------
+" vim-after-object
+" ----------------------------------------------------------------------------
+silent! if has_key(g:plugs, 'vim-after-object')
+  autocmd VimEnter * silent! call after_object#enable('=', ':', '#', ' ', '|')
+endif
+
+" ----------------------------------------------------------------------------
+" vim-emoji :dog: :cat: :rabbit:!
+" ----------------------------------------------------------------------------
+function! s:replace_emojis() range
+  for lnum in range(a:firstline, a:lastline)
+    let line = getline(lnum)
+    let subs = substitute(line,
+          \ ':\([^:]\+\):', '\=emoji#for(submatch(1), submatch(0))', 'g')
+    if line != subs
+      call setline(lnum, subs)
+    endif
+  endfor
+endfunction
+command! -range EmojiReplace <line1>,<line2>call s:replace_emojis()
+
+" }}}
+" ============================================================================
+" AUTOCMD {{{
+" ============================================================================
+
+" Ensime stuff
+autocmd BufWritePost *.scala silent :EnTypeCheck
+
+augroup FiletypeGroup
+  autocmd!
+
+  au BufNewFile,BufRead               *.hs          set filetype=haskell
+  au BufNewFile,BufRead               Dockerfile*   set filetype=dockerfile
+augroup END
+
+augroup vimrc
+  " Fugitive
+  au FileType gitcommit setlocal completefunc=emoji#complete
+  au FileType gitcommit nnoremap <buffer> <silent> cd :<C-U>Gcommit --amend --date="$(date)"<CR>
+
+  " http://vim.wikia.com/wiki/Highlight_unwanted_spaces
+  au BufNewFile,BufRead,InsertLeave * silent! match ExtraWhitespace /\s\+$/
+  au InsertEnter * silent! match ExtraWhitespace /\s\+\%#\@<!$/
+
+  " Unset paste on InsertLeave
+  au InsertLeave * silent! set nopaste
+
+  " Close preview window
+  if exists('##CompleteDone')
+    au CompleteDone * pclose
+  else
+    au InsertLeave * if !pumvisible() && (!exists('*getcmdwintype') || empty(getcmdwintype())) | pclose | endif
+  endif
+
+  " Automatic rename of tmux window
+  if exists('$TMUX') && !exists('$NORENAME')
+    au BufEnter * if empty(&buftype) | call system('tmux rename-window '.expand('%:t:S')) | endif
+    au VimLeave * call system('tmux set-window automatic-rename on')
+  endif
+augroup END
+
+" ----------------------------------------------------------------------------
+" Help in new tabs
+" ----------------------------------------------------------------------------
+function! s:helptab()
+  if &buftype == 'help'
+    wincmd T
+    nnoremap <buffer> q :q<cr>
+  endif
+endfunction
+autocmd vimrc BufEnter *.txt call s:helptab()
 
 " }}}
 " ============================================================================
@@ -676,322 +876,6 @@ onoremap <silent> i~ :<C-U>execute "normal vi`"<cr>
 onoremap <silent> a~ :<C-U>execute "normal va`"<cr>
 
 " }}}
-" =============================================================================
-" Plugin Stuff {{{
-" =============================================================================
-
-" ----------------------------------------------------------------------------
-" lightline | Status Bar
-" ----------------------------------------------------------------------------
-let g:lightline = {
-      \ 'colorscheme': lightline_theme,
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ], ['ctrlpmark'] ],
-      \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
-      \ },
-      \ 'component_function': {
-      \   'fugitive': 'LightlineFugitive',
-      \   'filename': 'LightlineFilename',
-      \   'fileformat': 'LightlineFileformat',
-      \   'filetype': 'LightlineFiletype',
-      \   'fileencoding': 'LightlineFileencoding',
-      \   'mode': 'LightlineMode',
-      \   'ctrlpmark': 'CtrlPMark',
-      \ },
-      \ 'component_expand': {
-      \   'syntastic': 'SyntasticStatuslineFlag',
-      \ },
-      \ 'component_type': {
-      \   'syntastic': 'error',
-      \ },
-      \ 'subseparator': { 'left': '|', 'right': '|' }
-      \ }
-
-" {{{
-function! LightlineModified()
-  return &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
-endfunction
-
-function! LightlineReadonly()
-  return &ft !~? 'help' && &readonly ? 'RO' : ''
-endfunction
-
-function! LightlineFilename()
-  let fname = expand('%:t')
-  return fname == 'ControlP' && has_key(g:lightline, 'ctrlp_item') ? g:lightline.ctrlp_item :
-        \ fname == '__Tagbar__' ? g:lightline.fname :
-        \ fname =~ '__Gundo\|NERD_tree' ? '' :
-        \ &ft == 'vimfiler' ? vimfiler#get_status_string() :
-        \ &ft == 'unite' ? unite#get_status_string() :
-        \ &ft == 'vimshell' ? vimshell#get_status_string() :
-        \ ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
-        \ ('' != fname ? fname : '[No Name]') .
-        \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
-endfunction
-
-function! LightlineFugitive()
-  try
-    if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && &ft !~? 'vimfiler' && exists('*fugitive#head')
-      let mark = ''  " edit here for cool mark
-      let branch = fugitive#head()
-      return branch !=# '' ? mark.branch : ''
-    endif
-  catch
-  endtry
-  return ''
-endfunction
-
-function! LightlineFileformat()
-  return winwidth(0) > 70 ? &fileformat : ''
-endfunction
-
-function! LightlineFiletype()
-  return winwidth(0) > 70 ? (&filetype !=# '' ? &filetype : 'no ft') : ''
-endfunction
-
-function! LightlineFileencoding()
-  return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
-endfunction
-
-function! LightlineMode()
-  let fname = expand('%:t')
-  return fname == '__Tagbar__' ? 'Tagbar' :
-        \ fname == 'ControlP' ? 'CtrlP' :
-        \ fname == '__Gundo__' ? 'Gundo' :
-        \ fname == '__Gundo_Preview__' ? 'Gundo Preview' :
-        \ fname =~ 'NERD_tree' ? 'NERDTree' :
-        \ &ft == 'unite' ? 'Unite' :
-        \ &ft == 'vimfiler' ? 'VimFiler' :
-        \ &ft == 'vimshell' ? 'VimShell' :
-        \ winwidth(0) > 60 ? lightline#mode() : ''
-endfunction
-
-function! CtrlPMark()
-  if expand('%:t') =~ 'ControlP' && has_key(g:lightline, 'ctrlp_item')
-    call lightline#link('iR'[g:lightline.ctrlp_regex])
-    return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
-          \ , g:lightline.ctrlp_next], 0)
-  else
-    return ''
-  endif
-endfunction
-
-let g:ctrlp_status_func = {
-  \ 'main': 'CtrlPStatusFunc_1',
-  \ 'prog': 'CtrlPStatusFunc_2',
-  \ }
-
-function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
-  let g:lightline.ctrlp_regex = a:regex
-  let g:lightline.ctrlp_prev = a:prev
-  let g:lightline.ctrlp_item = a:item
-  let g:lightline.ctrlp_next = a:next
-  return lightline#statusline(0)
-endfunction
-
-function! CtrlPStatusFunc_2(str)
-  return lightline#statusline(0)
-endfunction
-
-let g:tagbar_status_func = 'TagbarStatusFunc'
-
-function! TagbarStatusFunc(current, sort, fname, ...) abort
-    let g:lightline.fname = a:fname
-  return lightline#statusline(0)
-endfunction
-
-augroup AutoSyntastic
-  autocmd!
-  autocmd BufWritePost *.c,*.cpp call s:syntastic()
-augroup END
-function! s:syntastic()
-  SyntasticCheck
-  call lightline#update()
-endfunction
-
-let g:unite_force_overwrite_statusline = 0
-let g:vimfiler_force_overwrite_statusline = 0
-let g:vimshell_force_overwrite_statusline = 0
-"}}}
-let g:lightline = {
-      \ 'colorscheme': lightline_theme,
-      \ 'mode_map': { 'c': 'NORMAL' },
-      \ 'active': {
-      \   'left': [
-      \     [ 'mode', 'paste' ],
-      \     [ 'fugitive', 'filename' ],
-      \     [ 'syntastic', 'ale' ]
-      \   ]
-      \ },
-      \ 'component_function': {
-      \   'modified'    : 'LightlineModified',
-      \   'readonly'    : 'LightlineReadonly',
-      \   'fugitive'    : 'LightlineFugitive',
-      \   'filename'    : 'LightlineFilename',
-      \   'fileformat'  : 'LightlineFileformat',
-      \   'filetype'    : 'LightlineFiletype',
-      \   'fileencoding': 'LightlineFileencoding',
-      \   'mode'        : 'LightlineMode',
-      \   'syntastic'   : 'SyntasticStatuslineFlag'
-      \   'ale'         : 'ALEGetStatusline'
-      \ },
-      \ 'separator': { 'left': '⮀', 'right': '⮂' },
-      \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
-      \ }
-
-
-function! LightlineModified()
-  return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
-endfunction
-
-function! LightlineReadonly()
-  return &ft !~? 'help\|vimfiler\|gundo' && &readonly ? '⭤' : ''
-endfunction
-
-function! LightlineFilename()
-  return ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
-        \ (&ft == 'vimfiler' ? vimfiler#get_status_string() :
-        \  &ft == 'unite' ? unite#get_status_string() :
-        \  &ft == 'vimshell' ? vimshell#get_status_string() :
-        \ '' != expand('%:t') ? expand('%:t') : '[No Name]') .
-        \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
-endfunction
-
-function! LightlineFugitive()
-  if &ft !~? 'vimfiler\|gundo' && exists("*fugitive#head")
-    let branch = fugitive#head()
-    return branch !=# '' ? '⭠ '.branch : ''
-  endif
-  return ''
-endfunction
-
-function! LightlineFileformat()
-  return winwidth(0) > 70 ? (&fileformat . ' ' . WebDevIconsGetFileFormatSymbol()) : ''
-endfunction
-
-function! LightlineFiletype()
-  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
-endfunction
-
-function! LightlineFileencoding()
-  return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
-endfunction
-
-function! LightlineMode()
-  return winwidth(0) > 60 ? lightline#mode() : ''
-endfunction
-
-" ----------------------------------------------------------------------------
-" vim-after-object
-" ----------------------------------------------------------------------------
-silent! if has_key(g:plugs, 'vim-after-object')
-  autocmd VimEnter * silent! call after_object#enable('=', ':', '#', ' ', '|')
-endif
-
-" ----------------------------------------------------------------------------
-" nerd loader
-" ----------------------------------------------------------------------------
-"augroup nerd_loader
-"  autocmd!
-"  autocmd VimEnter * silent! autocmd! FileExplorer
-"  autocmd BufEnter,BufNew *
-"        \  if isdirectory(expand('<amatch>'))
-"        \|   call plug#load('nerdtree')
-"        \|   execute 'autocmd! nerd_loader'
-"        \| endif
-"augroup END
-
-"autocmd! User indentLine doautocmd indentLine Syntax
-
-" ----------------------------------------------------------------------------
-" <Enter> | vim-easy-align
-" ----------------------------------------------------------------------------
-"let g:easy_align_delimiters = {
-"\ '>': { 'pattern': '>>\|=>\|>' },
-"\ '\': { 'pattern': '\\' },
-"\ '/': { 'pattern': '//\+\|/\*\|\*/', 'delimiter_align': 'l', 'ignore_groups': ['!Comment'] },
-"\ ']': {
-"\     'pattern':       '\]\zs',
-"\     'left_margin':   0,
-"\     'right_margin':  1,
-"\     'stick_to_left': 0
-"\   },
-"\ ')': {
-"\     'pattern':       ')\zs',
-"\     'left_margin':   0,
-"\     'right_margin':  1,
-"\     'stick_to_left': 0
-"\   },
-"\ 'f': {
-"\     'pattern': ' \(\S\+(\)\@=',
-"\     'left_margin': 0,
-"\     'right_margin': 0
-"\   },
-"\ 'd': {
-"\     'pattern': ' \ze\S\+\s*[;=]',
-"\     'left_margin': 0,
-"\     'right_margin': 0
-"\   }
-"\ }
-
-" Start interactive EasyAlign in visual mode
-"xmap ga <Plug>(EasyAlign)
-
-" Start interactive EasyAlign with a Vim movement
-"nmap ga <Plug>(EasyAlign)
-"nmap gaa ga_
-"
-"xmap <Leader><Enter>   <Plug>(LiveEasyAlign)
-"nmap <Leader><Leader>a <Plug>(LiveEasyAlign)
-"
-"inoremap <silent> => =><Esc>mzvip:EasyAlign/=>/<CR>`z$a<Space>
-
-" ----------------------------------------------------------------------------
-" <leader>t | vim-tbone
-" ----------------------------------------------------------------------------
-"function! s:tmux_send(dest) range
-"  call inputsave()
-"  let dest = empty(a:dest) ? input('To which pane? ') : a:dest
-"  call inputrestore()
-"  silent call tbone#write_command(0, a:firstline, a:lastline, 1, dest)
-"endfunction
-"unlet! m
-"for m in ['n', 'x']
-"  let gv = m == 'x' ? 'gv' : ''
-"  execute m."noremap <silent> <leader>tt :call <SID>tmux_send('')<cr>".gv
-"  execute m."noremap <silent> <leader>th :call <SID>tmux_send('.left')<cr>".gv
-"  execute m."noremap <silent> <leader>tj :call <SID>tmux_send('.bottom')<cr>".gv
-"  execute m."noremap <silent> <leader>tk :call <SID>tmux_send('.top')<cr>".gv
-"  execute m."noremap <silent> <leader>tl :call <SID>tmux_send('.right')<cr>".gv
-"  execute m."noremap <silent> <leader>ty :call <SID>tmux_send('.top-left')<cr>".gv
-"  execute m."noremap <silent> <leader>to :call <SID>tmux_send('.top-right')<cr>".gv
-"  execute m."noremap <silent> <leader>tn :call <SID>tmux_send('.bottom-left')<cr>".gv
-"  execute m."noremap <silent> <leader>t. :call <SID>tmux_send('.bottom-right')<cr>".gv
-"endfor
-"unlet m
-
-" ----------------------------------------------------------------------------
-" vim-emoji :dog: :cat: :rabbit:!
-" ----------------------------------------------------------------------------
-"function! s:replace_emojis() range
-"  for lnum in range(a:firstline, a:lastline)
-"    let line = getline(lnum)
-"    let subs = substitute(line,
-"          \ ':\([^:]\+\):', '\=emoji#for(submatch(1), submatch(0))', 'g')
-"    if line != subs
-"      call setline(lnum, subs)
-"    endif
-"  endfor
-"endfunction
-"command! -range EmojiReplace <line1>,<line2>call s:replace_emojis()
-
-" ----------------------------------------------------------------------------
-" undotree
-" ----------------------------------------------------------------------------
-"let g:undotree_WindowLayout = 2
-"nnoremap U :UndotreeToggle<CR>
-
-" }}}
 " ============================================================================
 " FZF {{{
 " ============================================================================
@@ -1041,58 +925,6 @@ endfunction
 command! PlugHelp call fzf#run(fzf#wrap({
   \ 'source':  sort(keys(g:plugs)),
   \ 'sink':    function('s:plugs_sink')}))
-
-" }}}
-" ============================================================================
-" AUTOCMD {{{
-" ============================================================================
-
-" Ensime stuff
-autocmd BufWritePost *.scala silent :EnTypeCheck
-
-augroup FiletypeGroup
-  autocmd!
-
-  au BufNewFile,BufRead               *.hs          set filetype=haskell
-  au BufNewFile,BufRead               Dockerfile*   set filetype=dockerfile
-augroup END
-
-augroup vimrc
-  " Fugitive
-  au FileType gitcommit setlocal completefunc=emoji#complete
-  au FileType gitcommit nnoremap <buffer> <silent> cd :<C-U>Gcommit --amend --date="$(date)"<CR>
-
-  " http://vim.wikia.com/wiki/Highlight_unwanted_spaces
-  au BufNewFile,BufRead,InsertLeave * silent! match ExtraWhitespace /\s\+$/
-  au InsertEnter * silent! match ExtraWhitespace /\s\+\%#\@<!$/
-
-  " Unset paste on InsertLeave
-  au InsertLeave * silent! set nopaste
-
-  " Close preview window
-  if exists('##CompleteDone')
-    au CompleteDone * pclose
-  else
-    au InsertLeave * if !pumvisible() && (!exists('*getcmdwintype') || empty(getcmdwintype())) | pclose | endif
-  endif
-
-  " Automatic rename of tmux window
-  if exists('$TMUX') && !exists('$NORENAME')
-    au BufEnter * if empty(&buftype) | call system('tmux rename-window '.expand('%:t:S')) | endif
-    au VimLeave * call system('tmux set-window automatic-rename on')
-  endif
-augroup END
-
-" ----------------------------------------------------------------------------
-" Help in new tabs
-" ----------------------------------------------------------------------------
-function! s:helptab()
-  if &buftype == 'help'
-    wincmd T
-    nnoremap <buffer> q :q<cr>
-  endif
-endfunction
-autocmd vimrc BufEnter *.txt call s:helptab()
 
 " }}}
 " ============================================================================
