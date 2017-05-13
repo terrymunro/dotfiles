@@ -1,13 +1,10 @@
 import System.Exit
 import System.IO
 
-import Data.Bits ((.|.))
-import Data.Monoid
-import Data.Ratio
+import Data.Bits((.|.))
 import qualified Data.Map as M
 
 import Graphics.X11.Xlib
-import Graphics.X11.Xlib.Extras
 import Graphics.X11.ExtraTypes.XF86
 
 import XMonad
@@ -17,17 +14,13 @@ import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.SetWMName
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.EZConfig(additionalKeys)
-import XMonad.Config.Desktop
-import XMonad.Layout
 import XMonad.Layout.Grid
 import XMonad.Layout.ShowWName
-import XMonad.Layout.Spacing
-import XMonad.Layout.Tabbed
 import XMonad.Layout.ResizableTile
-import XMonad.Operations
-import XMonad.ManageHook
+import XMonad.Layout.LayoutModifier(ModifiedLayout)
 import qualified XMonad.StackSet as W
 
+main :: IO ()
 main = do
     xmproc <- spawnPipe "/usr/bin/xmobar $HOME/.xmonad/xmobarrc"
     xmonad $ ewmh def
@@ -42,7 +35,7 @@ main = do
           focusFollowsMouse = True,
           focusedBorderColor = "#f92672",
           manageHook = manageDocks <+> manageHook def,
-          layoutHook = showWName $ myLayouts
+          layoutHook = showWName myLayouts
           } `additionalKeys`
           [ ((0, xK_Scroll_Lock),     spawn "dm-tool lock")
           , ((0, xF86XK_Tools),       spawn "/usr/bin/nautilus")
@@ -55,11 +48,10 @@ main = do
           , ((0, xF86XK_AudioNext),   spawn "playerctl next")
           ]
 
+myWorkspaces :: [String]
 myWorkspaces = ["λ Work", "π Work Extra", "∀ Comms", "∈ Email", "5", "6", "7", "8", "∅ Music"]
 
-ratio :: Rational
-ratio = toRational ((1.0 + sqrt 5.0) / 2.0)
-
+myLayouts :: ModifiedLayout AvoidStruts (Choose ResizableTall (Choose Full (Choose Grid (Choose Tall (Choose (Mirror Tall) Full))))) Window
 myLayouts = avoidStruts (
     tall          |||
     Full          |||
@@ -71,6 +63,7 @@ myLayouts = avoidStruts (
 -- | The xmonad key bindings. Add, modify or remove key bindings here.
 --
 -- (The comment formatting character is used when generating the manpage)
+myKeys :: XConfig Layout -> M.Map (KeyMask, KeySym) (X ())
 myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     -- launching and killing programs
     [ ((modMask .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf) -- %! Launch terminal

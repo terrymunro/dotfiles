@@ -4,6 +4,7 @@
 " =============================================================================
 " {{{
 
+
 " }}}
 " =============================================================================
 " Vim-Plug {{{
@@ -11,11 +12,19 @@
 
 call plug#begin('~/.vim/plugged')
 
+" Parked untli futher notice
 " Browse GitHub events (user dashboard, user/repo activity)
-Plug 'junegunn/vim-github-dashboard', { 'on': ['GHDashboard', 'GHActivity'] }
+"Plug 'junegunn/vim-github-dashboard', { 'on': ['GHDashboard', 'GHActivity'] }
 " A git commit browser
-Plug 'junegunn/gv.vim'
-Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
+"Plug 'junegunn/gv.vim'
+"Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
+"Plug 'tpope/vim-endwise'
+"Plug 'tpope/vim-tbone'    " Tmux
+"Plug 'tpope/vim-commentary',     { 'on': '<Plug>Commentary' }
+"Plug 'Xuyuanp/nerdtree-git-plugin'
+"Plug 'rhysd/vim-grammarous'
+"Plug 'beloglazov/vim-online-thesaurus'
+
 Plug 'junegunn/vim-emoji'
 " Improvements to searching
 Plug 'junegunn/vim-slash'
@@ -28,21 +37,15 @@ Plug 'junegunn/vim-peekaboo'
 " Improves . to work with plugin maps
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
-Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-tbone'    " Tmux
-"Plug 'tpope/vim-commentary',     { 'on': '<Plug>Commentary' }
 Plug 'scrooloose/nerdcommenter'
 Plug 'scrooloose/nerdtree',       { 'on': 'NERDTreeToggle' }
-Plug 'Xuyuanp/nerdtree-git-plugin'
-" trying w0rp/ale for now
-"Plug 'vim-syntastic/syntastic'
+Plug 'w0rp/ale',                  { 'on' : 'ALEEnable'  }
+Plug 'vim-syntastic/syntastic'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'mbbill/undotree',           { 'on': 'UndotreeToggle' }
 Plug 'vim-scripts/ReplaceWithRegister'
 Plug 'AndrewRadev/splitjoin.vim'
-Plug 'rhysd/vim-grammarous'
-Plug 'beloglazov/vim-online-thesaurus'
 Plug 'ryanoasis/vim-devicons'
 Plug 'Shougo/neocomplete.vim'
 Plug 'Shougo/vimproc.vim',        { 'do': 'make' }
@@ -51,12 +54,13 @@ Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'garbas/vim-snipmate'
 Plug 'ervandew/supertab'
 Plug 'wesQ3/vim-windowswap'                           " ,ww
+Plug 'airblade/vim-gitgutter'
 Plug 'Yggdroot/indentLine'
 
 " Org-mode
 Plug 'jceb/vim-orgmode',          { 'for': 'org' }
 
-" Powerline
+" Powerline replacement
 Plug 'itchyny/lightline.vim'
 
 " EXPERIMENTAL
@@ -72,8 +76,6 @@ Plug 'tomasr/molokai'
 Plug 'AlessandroYorba/Monrovia'
 Plug 'joshdick/onedark.vim'
 
-
-Plug 'w0rp/ale',                  { 'on' : 'ALEEnable'  }
 " Languages
 Plug 'sheerun/vim-polyglot'
 Plug 'derekwyatt/vim-scala',      { 'for': 'scala'      }
@@ -81,6 +83,7 @@ Plug 'ensime/ensime-vim',         { 'for': 'scala'      }
 Plug 'bitc/vim-hdevtools',        { 'for': 'haskell'    }
 Plug 'eagletmt/ghcmod-vim',       { 'for': 'haskell'    }
 Plug 'eagletmt/neco-ghc',         { 'for': 'haskell'    }
+Plug 'idris-hackers/idris-vim',   { 'for': 'idris'      }
 Plug 'pangloss/vim-javascript',   { 'for': 'javascript' }
 Plug 'mxw/vim-jsx',               { 'for': 'javascript' }
 Plug 'flowtype/vim-flow',         { 'for': 'javascript' }
@@ -90,7 +93,6 @@ Plug 'honza/dockerfile.vim',      { 'for': 'dockerfile' }
 " Externals
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-
 
 call plug#end()
 
@@ -102,11 +104,14 @@ call plug#end()
 " -----------------------------------------------------------------------------
 "  General Config
 " -----------------------------------------------------------------------------
+set relativenumber                          " Relative line numbers
 set number                                  " Line numbers
 set backspace=indent,eol,start              " Allow backspace in insert mode
 set showmode                                " Show current mode
 set visualbell                              " Sounds are annoying
 set autoread                                " Reload files changed outside vim
+set magic                                   " Use 'magic' patterns (extended
+                                            " regex
 
 " This makes vim act like all other editors, buffers can exist in the
 " background without being in a window.
@@ -238,123 +243,37 @@ if (empty($TMUX))
   endif
 endif
 
-" %< Where to truncate
-" %n buffer number
-" %F Full path
-" %m Modified flag: [+], [-]
-" %r Readonly flag: [RO]
-" %y Type:          [vim]
-" fugitive#statusline()
-" %= Separator
-" %-14.(...)
-" %l Line
-" %c Column
-" %V Virtual column
-" %P Percentage
-" %#HighlightGroup#
-set statusline=%<[%n]\ %F\ %m%r%y\ %{exists('g:loaded_fugitive')?fugitive#statusline():''}\ %=%-14.(%l,%c%V%)\ %P
-
-let NERDTreeShowHidden=1
-
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
+let g:ensime_server_v2 = 1
+
 let g:indentLine_char = '┆'
 let g:indentLine_color_term = 239
-let g:ale_linters = {'haskell': ['stack-ghc', 'hlint', 'hdevtools']}
-let g:ale_open_list = 1
-let g:ale_keep_list_window_open = 1
 
-let $FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*" --glob "!**target/*"'
+" ----------------------------------------------------------------------------
+" FZF
+" ----------------------------------------------------------------------------
+"let g:fzf_layout = { 'window': 'enew' }
 
-" }}}
-" =============================================================================
-" Emoji Stuff {{{
-" =============================================================================
-silent! if emoji#available()
-  let s:ft_emoji = map({
-    \ 'c':          'baby_chick',
-    \ 'clojure':    'lollipop',
-    \ 'coffee':     'coffee',
-    \ 'cpp':        'chicken',
-    \ 'css':        'art',
-    \ 'eruby':      'ring',
-    \ 'gitcommit':  'soon',
-    \ 'haml':       'hammer',
-    \ 'help':       'angel',
-    \ 'html':       'herb',
-    \ 'java':       'older_man',
-    \ 'javascript': 'monkey',
-    \ 'make':       'seedling',
-    \ 'markdown':   'book',
-    \ 'perl':       'camel',
-    \ 'python':     'snake',
-    \ 'ruby':       'gem',
-    \ 'scala':      'barber',
-    \ 'sh':         'shell',
-    \ 'slim':       'dancer',
-    \ 'text':       'books',
-    \ 'vim':        'poop',
-    \ 'vim-plug':   'electric_plug',
-    \ 'yaml':       'yum',
-    \ 'yaml.jinja': 'yum'
-  \ }, 'emoji#for(v:val)')
+" ----------------------------------------------------------------------------
+" NERDTree
+" ----------------------------------------------------------------------------
+let NERDTreeShowHidden=1
 
-  function! S_filetype()
-    if empty(&filetype)
-      return emoji#for('grey_question')
-    else
-      return get(s:ft_emoji, &filetype, '['.&filetype.']')
-    endif
-  endfunction
+" ----------------------------------------------------------------------------
+" w0rp/ale
+" ----------------------------------------------------------------------------
+let g:ale_linters = {
+      \  'haskell': ['stack-ghc', 'hlint', 'hdevtools'],
+      \  'scala': ['scalac']
+      \}
+let g:ale_open_list = 0
+let g:ale_keep_list_window_open = 0
+let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
 
-  function! S_modified()
-    if &modified
-      return emoji#for('kiss').' '
-    elseif !&modifiable
-      return emoji#for('construction').' '
-    else
-      return ''
-    endif
-  endfunction
-
-  function! S_fugitive()
-    if !exists('g:loaded_fugitive')
-      return ''
-    endif
-    let head = fugitive#head()
-    if empty(head)
-      return ''
-    else
-      return head == 'master' ? emoji#for('crown') : emoji#for('dango').'='.head
-    endif
-  endfunction
-
-  let s:braille = split('"⠉⠒⠤⣀', '\zs')
-  function! Braille()
-    let len = len(s:braille)
-    let [cur, max] = [line('.'), line('$')]
-    let pos  = min([len * (cur - 1) / max([1, max - 1]), len - 1])
-    return s:braille[pos]
-  endfunction
-
-  hi def link User1 TablineFill
-  let s:cherry = emoji#for('cherry_blossom')
-  function! MyStatusLine()
-    let mod = '%{S_modified()}'
-    let ro  = "%{&readonly ? emoji#for('lock') . ' ' : ''}"
-    let ft  = '%{S_filetype()}'
-    let fug = ' %{S_fugitive()}'
-    let sep = ' %= '
-    let pos = ' %l,%c%V '
-    let pct = ' %P '
-
-    return s:cherry.' [%n] %F %<'.mod.ro.ft.fug.sep.pos.'%{Braille()}%*'.pct.s:cherry
-  endfunction
-
-  " Note that the "%!" expression is evaluated in the context of the
-  " current window and buffer, while %{} items are evaluated in the
-  " context of the window that the statusline belongs to.
-  set statusline=%!MyStatusLine()
-endif
+" ----------------------------------------------------------------------------
+" vim-github-dashboard
+" ----------------------------------------------------------------------------
+"let g:github_dashboard = { 'username': 'terrymunro' }
 
 " }}}
 " =============================================================================
@@ -363,40 +282,55 @@ endif
 
 let mapleader       = ','
 let maplocalleader  = ','
+imap jj <Esc>
 
-nnoremap <Leader>l  :ALEEnable<CR>
+" ALE
+nnoremap <Leader>l :ALEEnable<CR>
 
 " Tags
 nnoremap <C-]> g<C-]>
-nnoremap g[ :pop<cr>
+nnoremap g[ :pop<CR>
 
 " Jump list (to newer position)
 nnoremap <C-p> <C-i>
 
-" <F10>, <C-n> | NERD Tree
-nnoremap <F10> :NERDTreeToggle<CR>
-nnoremap <C-n> :NERDTreeToggle<CR>
+" <C-n> | NERD Tree
+nnoremap <C-n>     :NERDTreeToggle<CR>
 nnoremap <Leader>n :NERDTreeFocus<CR>
-
-" <F11> | Tagbar
-if v:version >= 703
-  inoremap <F11> <ESC>:TagbarToggle<CR>
-  nnoremap <F11> :TagbarToggle<CR>
-  let g:tagbar_sort = 0
-endif
 
 " Movement in insert mode
 inoremap <C-h> <C-o>h
-inoremap <C-l> <C-o>a
+inoremap <C-l> <C-o>ja
 inoremap <C-j> <C-o>j
 inoremap <C-k> <C-o>k
 inoremap <C-^> <C-o><C-^>
 
+" Navigating to other windows easier
+nnoremap <A-h> <C-w>h
+nnoremap <A-j> <C-w>j
+nnoremap <A-k> <C-w>k
+nnoremap <A-l> <C-w>l
+
 " Make Y behave like other capitals
 nnoremap Y y$
 
+" ----------------------------------------------------------------------------
+" Terminal
+" ----------------------------------------------------------------------------
+tnoremap <ESC> <C-\><C-n>
+
+" Navigating to other windows easier terminal edition
+tnoremap <A-h> <C-\><C-n><C-w>h
+tnoremap <A-j> <C-\><C-n><C-w>j
+tnoremap <A-k> <C-\><C-n><C-w>k
+tnoremap <A-l> <C-\><C-n><C-w>l
+
+" ----------------------------------------------------------------------------
 " Ensime
-nnoremap <LocalLeader>t :EnTypeCheck<CR>
+" ----------------------------------------------------------------------------
+au FileType scala nnoremap <LocalLeader>t  :EnTypeCheck<CR>
+au FileType scala nnoremap <LocalLeader>df :EnDeclaration<CR>
+au FileType scala nnoremap <LocalLeader>ds :EnDeclarationSplit<CR>
 
 " ----------------------------------------------------------------------------
 " nvim
@@ -422,12 +356,27 @@ au FileType haskell nnoremap <buffer> <Leader>tq    :GhcModType<CR>
 au FileType haskell nnoremap <buffer> <Leader>te    :GhcModTypeClear<CR>
 au FileType haskell nnoremap <buffer> <F1>          :HdevtoolsType<CR>
 au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsClear<CR>
+nmap <Leader>ff :w! stack runhaskell %<CR>
+
+" ----------------------------------------------------------------------------
+" Markdown headings
+" ----------------------------------------------------------------------------
+au FileType markdown nnoremap <buffer> <Leader>1 m`yypVr=``
+au FileType markdown nnoremap <buffer> <Leader>2 m`yypVr-``
+au FileType markdown nnoremap <buffer> <Leader>3 m`^i### <ESC>``4l
+au FileType markdown nnoremap <buffer> <Leader>4 m`^i#### <ESC>``5l
+au FileType markdown nnoremap <buffer> <Leader>5 m`^i##### <ESc>``6l
+
+" ----------------------------------------------------------------------------
+" <Leader>c Close quickfix/location window
+" ----------------------------------------------------------------------------
+nnoremap <Leader>c :cclose<Bar>lclose<CR>
 
 " ----------------------------------------------------------------------------
 " vim-fugitive
 " ----------------------------------------------------------------------------
-nmap     <Leader>g :Gstatus<CR>gg<C-n>
-nnoremap <Leader>d :Gdiff<CR>
+"nmap <Leader>g :Gstatus<CR>gg<C-n>
+"nmap <Leader>d :Gdiff<CR>
 
 " ----------------------------------------------------------------------------
 " <tab> / <s-tab> / <c-v><tab> | super-duper-tab {{{
@@ -506,20 +455,6 @@ else
 endif
 " }}}
 " ----------------------------------------------------------------------------
-
-" ----------------------------------------------------------------------------
-" Markdown headings
-" ----------------------------------------------------------------------------
-au FileType markdown nnoremap <buffer> <Leader>1 m`yypVr=``
-au FileType markdown nnoremap <buffer> <Leader>2 m`yypVr-``
-au FileType markdown nnoremap <buffer> <Leader>3 m`^i### <ESC>``4l
-au FileType markdown nnoremap <buffer> <Leader>4 m`^i#### <ESC>``5l
-au FileType markdown nnoremap <buffer> <Leader>5 m`^i##### <ESc>``6l
-
-" ----------------------------------------------------------------------------
-" <Leader>c Close quickfix/location window
-" ----------------------------------------------------------------------------
-nnoremap <Leader>c :cclose<Bar>lclose<CR>
 
 " }}}
 " ============================================================================
@@ -741,38 +676,41 @@ onoremap <silent> a~ :<C-U>execute "normal va`"<cr>
 " =============================================================================
 
 " ----------------------------------------------------------------------------
-" nerd loader
+" lightline | Status Bar
 " ----------------------------------------------------------------------------
-augroup nerd_loader
-  autocmd!
-  autocmd VimEnter * silent! autocmd! FileExplorer
-  autocmd BufEnter,BufNew *
-        \  if isdirectory(expand('<amatch>'))
-        \|   call plug#load('nerdtree')
-        \|   execute 'autocmd! nerd_loader'
-        \| endif
-augroup END
+  " %< Where to truncate
+  " %n buffer number
+  " %F Full path
+  " %m Modified flag: [+], [-]
+  " %r Readonly flag: [RO]
+  " %y Type:          [vim]
+  " fugitive#statusline()
+  " %= Separator
+  " %-14.(...)
+  " %l Line
+  " %c Column
+  " %V Virtual column
+  " %P Percentage
+  " %#HighlightGroup#
+  " %{ALEGetStatusLine()}
+  " set statusline=%{ALEGetStatusLine()} %<[%n]\ %F\ %m%r%y\ %{exists('g:loaded_fugitive')?fugitive#statusline():''}\ %=%-14.(%l,%c%V%)\ %P
 
-autocmd! User indentLine doautocmd indentLine Syntax
-
-" ----------------------------------------------------------------------------
-" lightline
-" ----------------------------------------------------------------------------
 let g:lightline = {
       \ 'colorscheme': lightline_theme,
       \ 'mode_map': { 'c': 'NORMAL' },
       \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ] ]
+      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename', 'ale' ], ]
       \ },
       \ 'component_function': {
-      \   'modified': 'LightlineModified',
-      \   'readonly': 'LightlineReadonly',
-      \   'fugitive': 'LightlineFugitive',
-      \   'filename': 'LightlineFilename',
-      \   'fileformat': 'LightlineFileformat',
-      \   'filetype': 'LightlineFiletype',
+      \   'modified':     'LightlineModified',
+      \   'readonly':     'LightlineReadonly',
+      \   'fugitive':     'LightlineFugitive',
+      \   'filename':     'LightlineFilename',
+      \   'fileformat':   'LightlineFileformat',
+      \   'filetype':     'LightlineFiletype',
       \   'fileencoding': 'LightlineFileencoding',
-      \   'mode': 'LightlineMode',
+      \   'mode':         'LightlineMode',
+      \   'ale':          'ALEGetStatuSline'
       \ },
       \ 'separator': { 'left': '⮀', 'right': '⮂' },
       \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
@@ -828,97 +766,107 @@ silent! if has_key(g:plugs, 'vim-after-object')
 endif
 
 " ----------------------------------------------------------------------------
+" nerd loader
+" ----------------------------------------------------------------------------
+"augroup nerd_loader
+"  autocmd!
+"  autocmd VimEnter * silent! autocmd! FileExplorer
+"  autocmd BufEnter,BufNew *
+"        \  if isdirectory(expand('<amatch>'))
+"        \|   call plug#load('nerdtree')
+"        \|   execute 'autocmd! nerd_loader'
+"        \| endif
+"augroup END
+
+"autocmd! User indentLine doautocmd indentLine Syntax
+
+" ----------------------------------------------------------------------------
 " <Enter> | vim-easy-align
 " ----------------------------------------------------------------------------
-let g:easy_align_delimiters = {
-\ '>': { 'pattern': '>>\|=>\|>' },
-\ '\': { 'pattern': '\\' },
-\ '/': { 'pattern': '//\+\|/\*\|\*/', 'delimiter_align': 'l', 'ignore_groups': ['!Comment'] },
-\ ']': {
-\     'pattern':       '\]\zs',
-\     'left_margin':   0,
-\     'right_margin':  1,
-\     'stick_to_left': 0
-\   },
-\ ')': {
-\     'pattern':       ')\zs',
-\     'left_margin':   0,
-\     'right_margin':  1,
-\     'stick_to_left': 0
-\   },
-\ 'f': {
-\     'pattern': ' \(\S\+(\)\@=',
-\     'left_margin': 0,
-\     'right_margin': 0
-\   },
-\ 'd': {
-\     'pattern': ' \ze\S\+\s*[;=]',
-\     'left_margin': 0,
-\     'right_margin': 0
-\   }
-\ }
+"let g:easy_align_delimiters = {
+"\ '>': { 'pattern': '>>\|=>\|>' },
+"\ '\': { 'pattern': '\\' },
+"\ '/': { 'pattern': '//\+\|/\*\|\*/', 'delimiter_align': 'l', 'ignore_groups': ['!Comment'] },
+"\ ']': {
+"\     'pattern':       '\]\zs',
+"\     'left_margin':   0,
+"\     'right_margin':  1,
+"\     'stick_to_left': 0
+"\   },
+"\ ')': {
+"\     'pattern':       ')\zs',
+"\     'left_margin':   0,
+"\     'right_margin':  1,
+"\     'stick_to_left': 0
+"\   },
+"\ 'f': {
+"\     'pattern': ' \(\S\+(\)\@=',
+"\     'left_margin': 0,
+"\     'right_margin': 0
+"\   },
+"\ 'd': {
+"\     'pattern': ' \ze\S\+\s*[;=]',
+"\     'left_margin': 0,
+"\     'right_margin': 0
+"\   }
+"\ }
 
 " Start interactive EasyAlign in visual mode
-xmap ga <Plug>(EasyAlign)
+"xmap ga <Plug>(EasyAlign)
 
 " Start interactive EasyAlign with a Vim movement
-nmap ga <Plug>(EasyAlign)
-nmap gaa ga_
-
-xmap <Leader><Enter>   <Plug>(LiveEasyAlign)
-nmap <Leader><Leader>a <Plug>(LiveEasyAlign)
-
-inoremap <silent> => =><Esc>mzvip:EasyAlign/=>/<CR>`z$a<Space>
-
-" ----------------------------------------------------------------------------
-" vim-github-dashboard
-" ----------------------------------------------------------------------------
-let g:github_dashboard = { 'username': 'terrymunro' }
+"nmap ga <Plug>(EasyAlign)
+"nmap gaa ga_
+"
+"xmap <Leader><Enter>   <Plug>(LiveEasyAlign)
+"nmap <Leader><Leader>a <Plug>(LiveEasyAlign)
+"
+"inoremap <silent> => =><Esc>mzvip:EasyAlign/=>/<CR>`z$a<Space>
 
 " ----------------------------------------------------------------------------
 " <leader>t | vim-tbone
 " ----------------------------------------------------------------------------
-function! s:tmux_send(dest) range
-  call inputsave()
-  let dest = empty(a:dest) ? input('To which pane? ') : a:dest
-  call inputrestore()
-  silent call tbone#write_command(0, a:firstline, a:lastline, 1, dest)
-endfunction
-unlet! m
-for m in ['n', 'x']
-  let gv = m == 'x' ? 'gv' : ''
-  execute m."noremap <silent> <leader>tt :call <SID>tmux_send('')<cr>".gv
-  execute m."noremap <silent> <leader>th :call <SID>tmux_send('.left')<cr>".gv
-  execute m."noremap <silent> <leader>tj :call <SID>tmux_send('.bottom')<cr>".gv
-  execute m."noremap <silent> <leader>tk :call <SID>tmux_send('.top')<cr>".gv
-  execute m."noremap <silent> <leader>tl :call <SID>tmux_send('.right')<cr>".gv
-  execute m."noremap <silent> <leader>ty :call <SID>tmux_send('.top-left')<cr>".gv
-  execute m."noremap <silent> <leader>to :call <SID>tmux_send('.top-right')<cr>".gv
-  execute m."noremap <silent> <leader>tn :call <SID>tmux_send('.bottom-left')<cr>".gv
-  execute m."noremap <silent> <leader>t. :call <SID>tmux_send('.bottom-right')<cr>".gv
-endfor
-unlet m
+"function! s:tmux_send(dest) range
+"  call inputsave()
+"  let dest = empty(a:dest) ? input('To which pane? ') : a:dest
+"  call inputrestore()
+"  silent call tbone#write_command(0, a:firstline, a:lastline, 1, dest)
+"endfunction
+"unlet! m
+"for m in ['n', 'x']
+"  let gv = m == 'x' ? 'gv' : ''
+"  execute m."noremap <silent> <leader>tt :call <SID>tmux_send('')<cr>".gv
+"  execute m."noremap <silent> <leader>th :call <SID>tmux_send('.left')<cr>".gv
+"  execute m."noremap <silent> <leader>tj :call <SID>tmux_send('.bottom')<cr>".gv
+"  execute m."noremap <silent> <leader>tk :call <SID>tmux_send('.top')<cr>".gv
+"  execute m."noremap <silent> <leader>tl :call <SID>tmux_send('.right')<cr>".gv
+"  execute m."noremap <silent> <leader>ty :call <SID>tmux_send('.top-left')<cr>".gv
+"  execute m."noremap <silent> <leader>to :call <SID>tmux_send('.top-right')<cr>".gv
+"  execute m."noremap <silent> <leader>tn :call <SID>tmux_send('.bottom-left')<cr>".gv
+"  execute m."noremap <silent> <leader>t. :call <SID>tmux_send('.bottom-right')<cr>".gv
+"endfor
+"unlet m
 
 " ----------------------------------------------------------------------------
 " vim-emoji :dog: :cat: :rabbit:!
 " ----------------------------------------------------------------------------
-function! s:replace_emojis() range
-  for lnum in range(a:firstline, a:lastline)
-    let line = getline(lnum)
-    let subs = substitute(line,
-          \ ':\([^:]\+\):', '\=emoji#for(submatch(1), submatch(0))', 'g')
-    if line != subs
-      call setline(lnum, subs)
-    endif
-  endfor
-endfunction
-command! -range EmojiReplace <line1>,<line2>call s:replace_emojis()
+"function! s:replace_emojis() range
+"  for lnum in range(a:firstline, a:lastline)
+"    let line = getline(lnum)
+"    let subs = substitute(line,
+"          \ ':\([^:]\+\):', '\=emoji#for(submatch(1), submatch(0))', 'g')
+"    if line != subs
+"      call setline(lnum, subs)
+"    endif
+"  endfor
+"endfunction
+"command! -range EmojiReplace <line1>,<line2>call s:replace_emojis()
 
 " ----------------------------------------------------------------------------
 " undotree
 " ----------------------------------------------------------------------------
-let g:undotree_WindowLayout = 2
-nnoremap U :UndotreeToggle<CR>
+"let g:undotree_WindowLayout = 2
+"nnoremap U :UndotreeToggle<CR>
 
 " }}}
 " ============================================================================
@@ -933,8 +881,8 @@ endif
 command! -bang -nargs=? -complete=dir Files
   \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 
-" nnoremap <silent> <Leader><Leader> :Files<CR>
-nnoremap <silent> <expr> <Leader><Leader> (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":Files\<cr>"
+nnoremap <silent> <Leader><Leader> :Files<CR>
+"nnoremap <silent> <expr> <Leader><Leader> (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":Files\<cr>"
 nnoremap <silent> <Leader>C        :Colors<CR>
 nnoremap <silent> <Leader><Enter>  :Buffers<CR>
 nnoremap <silent> <Leader>ag       :Ag <C-R><C-W><CR>

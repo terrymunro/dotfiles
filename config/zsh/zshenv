@@ -14,6 +14,10 @@ export TERM="xterm-256color"
 export ZSH_TMUX_FIXTERM=false
 export ZSH_TMUX_AUTOSTART=true
 
+# FZF!
+export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!*/.git/*" --glob "!*/target/*"'
+export FZF_DEFAULT_OPTS='--reverse --inline-info'
+
 # VirtualEnv
 #export WORKON_HOME=$HOME/.virtualenvs
 #export PROJECT_HOME=/vagrant
@@ -24,9 +28,6 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# Custom Prompt
-export PROMPT="> %F{green}%Bλ%b%f "
-
 # Aliases
 alias zshconfig="nvim ~/.zshrc"
 alias ohmyzsh="nvim ~/.oh-my-zsh"
@@ -34,3 +35,5 @@ alias vi="nvim"
 alias vim="nvim"
 alias gvim="nvim"
 alias tmux="tmux -2"
+
+source $HOME/.env
